@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(ls:*)",
+      "Bash(npm install)",
+      "Bash(timeout 5 npm start)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(python -m src.main:*)",
+      "Bash(python src/main.py:*)",
+      "Bash(python:*)"
+    ]
+  }
+}
