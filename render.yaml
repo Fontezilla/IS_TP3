@@ -6,8 +6,8 @@ services:
     name: crypto-watcher
     env: node
     plan: free # ou starter
-    buildCommand: cd watcher && npm install
-    startCommand: cd watcher && node src/index.js
+    buildCommand: cd data-processor/watcher && npm install
+    startCommand: cd data-processor/watcher && node src/index.js
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -25,8 +25,8 @@ services:
     name: crypto-enricher
     env: node
     plan: free
-    buildCommand: cd enricher && npm install
-    startCommand: cd enricher && node src/index.js
+    buildCommand: cd data-processor/enricher && npm install
+    startCommand: cd data-processor/enricher && node src/index.js
     # Auto-scaling (Só funciona nos planos pagos, no free é ignorado mas não dá erro)
     scaling:
       minInstances: 1
@@ -55,8 +55,8 @@ services:
     name: crypto-sender
     env: node
     plan: free
-    buildCommand: cd sender && npm install
-    startCommand: cd sender && node src/index.js
+    buildCommand: cd data-processor/sender && npm install
+    startCommand: cd data-processor/sender && node src/index.js
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -85,8 +85,8 @@ services:
     name: crypto-cleaner
     env: node
     plan: free
-    buildCommand: cd cleaner && npm install
-    startCommand: cd cleaner && node src/index.js
+    buildCommand: cd data-processor/cleaner && npm install
+    startCommand: cd data-processor/cleaner && node src/index.js
     envVars:
       - key: SUPABASE_URL
         sync: false
