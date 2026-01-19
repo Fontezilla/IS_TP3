@@ -1,0 +1,86 @@
+{
+  "pipeline_id": "crypto-etl-v1",
+  "version": "1.0",
+  "description": "Pipeline de processamento para Yahoo Finance -> CoinGecko -> CoinMarketCap",
+  
+  "ingestion_config": {
+    "source_format": "csv",
+    "delimiter": ",",
+    "has_header": true,
+    "columns_mapping": {
+      "symbol": 0,
+      "name": 1,
+      "price": 2,
+      "change_24h": 3,
+      "change_24h_percent": 4,
+      "market_cap": 5,
+      "volume_24h": 6,
+      "timestamp": 7
+    }
+  },
+
+  "cleaning_rules": {
+    "normalization_strategy": {
+      "price_fields": ["price", "change_24h", "volume_24h"],
+      
+      "actions": {
+        "remove_chars": ["\"", ",", "%", "+"]
+      }
+    },
+    "symbol_mapping": {
+      "strategy": "lookup",
+      "source_file": "currency_mapping.json"
+    }
+  },
+
+  "field_types": {
+    "symbol": "string",
+    "name": "string",
+    "price": "number",
+    "change_24h": "number",
+    "change_24h_percent": "number",
+    "market_cap": "number",
+    "volume_24h": "number",
+    "timestamp": "datetime",
+    "circulating_supply": "number",
+    "total_supply": "number",
+    "ath": "number",
+    "ath_date": "datetime",
+    "cmc_rank": "integer",
+    "dominance": "number",
+    "tags": "string",
+    "max_supply": "number"
+  },
+
+  "enrichment_pipeline": [
+    {
+      "order": 1,
+      "provider_name": "CoinGecko",
+      "required": false,
+      "endpoint_type": "market_data",
+      "base_url": "https://api.coingecko.com/api/v3/coins/markets",
+      "params": {
+        "vs_currency": "usd"
+      },
+      "target_fields": [
+        "circulating_supply",
+        "total_supply",
+        "ath",
+        "ath_date"
+      ]
+    },
+    {
+      "order": 2,
+      "provider_name": "CoinMarketCap",
+      "required": true,
+      "auth_header": "X-CMC_PRO_API_KEY",
+      "base_url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
+      "target_fields": [
+        "cmc_rank",
+        "dominance",
+        "tags",
+        "max_supply"
+      ]
+    }
+  ]
+}

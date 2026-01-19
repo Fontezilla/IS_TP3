@@ -1,0 +1,56 @@
+services:
+  watcher:
+    build:
+      context: ./watcher
+      dockerfile: Dockerfile
+    container_name: data-processor-watcher
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - enricher
+    networks:
+      - data-processor-network
+
+  enricher:
+    build:
+      context: ./enricher
+      dockerfile: Dockerfile
+    container_name: data-processor-enricher
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - sender
+    networks:
+      - data-processor-network
+
+  sender:
+    build:
+      context: ./sender
+      dockerfile: Dockerfile
+    container_name: data-processor-sender
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - data-processor-network
+
+  cleaner:
+    build:
+      context: ./cleaner
+      dockerfile: Dockerfile
+    container_name: data-processor-cleaner
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    networks:
+      - data-processor-network
+
+networks:
+  data-processor-network:
+    driver: bridge

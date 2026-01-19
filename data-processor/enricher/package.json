@@ -1,0 +1,16 @@
+{
+  "name": "crypto-enricher",
+  "version": "1.0.0",
+  "description": "Limpeza e Enriquecimento de Dados",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "amqplib": "^0.10.3",
+    "axios": "^1.6.0",
+    "csv-parse": "^5.5.0",
+    "dotenv": "^16.3.1"
+  }
+}

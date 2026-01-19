@@ -1,0 +1,98 @@
+services:
+  # ---------------------------------------------------
+  # 1. WATCHER (Worker - Apenas processa em background)
+  # ---------------------------------------------------
+  - type: worker
+    name: crypto-watcher
+    env: node
+    plan: free # ou starter
+    buildCommand: cd watcher && npm install
+    startCommand: cd watcher && node src/index.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: SUPABASE_RAW_BUCKET
+        sync: false
+
+  # ---------------------------------------------------
+  # 2. ENRICHER (Worker - Escala conforme a carga)
+  # ---------------------------------------------------
+  - type: worker
+    name: crypto-enricher
+    env: node
+    plan: free
+    buildCommand: cd enricher && npm install
+    startCommand: cd enricher && node src/index.js
+    # Auto-scaling (Só funciona nos planos pagos, no free é ignorado mas não dá erro)
+    scaling:
+      minInstances: 1
+      maxInstances: 5
+      targetCPUPercent: 70
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: CMC_API_KEY
+        sync: false
+      - key: SUPABASE_CONFIGS
+        sync: false
+      - key: SUPABASE_RAW_BUCKET
+        sync: false
+      - key: SUPABASE_PROCESSED_BUCKET
+        sync: false
+
+  # ---------------------------------------------------
+  # 3. SENDER (Worker - Envia dados para fora)
+  # ---------------------------------------------------
+  - type: worker
+    name: crypto-sender
+    env: node
+    plan: free
+    buildCommand: cd sender && npm install
+    startCommand: cd sender && node src/index.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: XML_SERVICE_URL
+        sync: false
+      - key: XML_SERVICE_TOKEN
+        sync: false
+      - key: SUPABASE_PROCESSED_BUCKET
+        sync: false
+      - key: SUPABASE_CONFIGS
+        sync: false
+      - key: CLEANER_URL
+        fromService:
+          type: web
+          name: crypto-cleaner
+          property: url
+
+  # ---------------------------------------------------
+  # 4. CLEANER (WEB SERVICE - Precisa de HTTP!)
+  # ---------------------------------------------------
+  - type: web
+    name: crypto-cleaner
+    env: node
+    plan: free
+    buildCommand: cd cleaner && npm install
+    startCommand: cd cleaner && node src/index.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_RAW_BUCKET
+        sync: false
+      - key: SUPABASE_PROCESSED_BUCKET
+        sync: false

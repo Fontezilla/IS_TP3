@@ -1,0 +1,34 @@
+{
+  "root_element": "AtivoCripto",
+  "version": "1.0",
+  "structure": {
+    "Identificacao": {
+      "Ticker": "symbol",
+      "Nome": "name"
+    },
+    "DadosMercado": {
+      "PrecoAtual": "price",
+      "Volume24h": "volume_24h",
+      "CapitalizacaoMercado": "market_cap",
+      "Variacao": {
+        "Percentual": "change_24h_percent",
+        "Absoluta": "change_24h"
+      }
+    },
+    "DadosBlockchain": {
+      "SuprimentoCirculante": "circulating_supply",
+      "SuprimentoTotal": "total_supply",
+      "ATH": "ath",
+      "ATH_Data": "ath_date"
+    },
+    "MetricasAvancadas": {
+      "RankingGlobal": "cmc_rank",
+      "DominanciaMercado": "dominance",
+      "Tags": "tags",
+      "SuprimentoMaximo": "max_supply"
+    },
+    "Metadados": {
+      "Timestamp": "timestamp"
+    }
+  }
+}

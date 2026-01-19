@@ -1,0 +1,22 @@
+{
+  "name": "crypto-watcher",
+  "version": "1.0.0",
+  "description": "Serviço de Ingestão: Polling Supabase e Trigger CloudAMQP",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
