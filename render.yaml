@@ -1,11 +1,11 @@
 services:
   # ---------------------------------------------------
-  # 1. WATCHER (Worker - Apenas processa em background)
+  # 1. WATCHER
   # ---------------------------------------------------
   - type: worker
     name: crypto-watcher
     env: node
-    plan: free # ou starter
+    plan: free
     buildCommand: cd data-processor/watcher && npm install
     startCommand: cd data-processor/watcher && node src/index.js
     envVars:
@@ -19,7 +19,7 @@ services:
         sync: false
 
   # ---------------------------------------------------
-  # 2. ENRICHER (Worker - Escala conforme a carga)
+  # 2. ENRICHER
   # ---------------------------------------------------
   - type: worker
     name: crypto-enricher
@@ -27,11 +27,6 @@ services:
     plan: free
     buildCommand: cd data-processor/enricher && npm install
     startCommand: cd data-processor/enricher && node src/index.js
-    # Auto-scaling (Só funciona nos planos pagos, no free é ignorado mas não dá erro)
-    scaling:
-      minInstances: 1
-      maxInstances: 5
-      targetCPUPercent: 70
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -49,7 +44,7 @@ services:
         sync: false
 
   # ---------------------------------------------------
-  # 3. SENDER (Worker - Envia dados para fora)
+  # 3. SENDER
   # ---------------------------------------------------
   - type: worker
     name: crypto-sender
@@ -73,13 +68,10 @@ services:
       - key: SUPABASE_CONFIGS
         sync: false
       - key: CLEANER_URL
-        fromService:
-          type: web
-          name: crypto-cleaner
-          property: url
+        sync: false
 
   # ---------------------------------------------------
-  # 4. CLEANER (WEB SERVICE - Precisa de HTTP!)
+  # 4. CLEANER
   # ---------------------------------------------------
   - type: web
     name: crypto-cleaner
