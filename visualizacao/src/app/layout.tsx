@@ -1,14 +1,10 @@
-import { ApolloProvider } from '@apollo/client/react';
-import client from '../lib/graphql';
+// app/layout.tsx
 import { ApolloWrapper } from './ApolloWrapper';
+import './globals.css';
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt">
+    <html lang="pt-BR">
       <body>
         <ApolloWrapper>
           {children}

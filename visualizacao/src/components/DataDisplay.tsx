@@ -14,23 +14,14 @@ const GET_EVOLUCAO_PRECO = gql`
   }
 `;
 
-export default function DataDisplay({
-  ticker,
-  from,
-  to,
-}: {
-  ticker: string;
-  from: string;
-  to: string;
-}) {
+export default function DataDisplay({ ticker, from, to }: { ticker: string; from: string; to: string }) {
   const { loading, error, data } = useQuery<EvolucaoPrecoResponse>(GET_EVOLUCAO_PRECO, {
     variables: { ticker, from, to },
   });
 
   return (
-    <Card>
+    <Card sx={{ height: '100%' }}>
       <CardContent>
-        <Typography variant="h5">Evolução de Preço</Typography>
         {loading && (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="100px">
             <CircularProgress />
@@ -38,13 +29,13 @@ export default function DataDisplay({
         )}
         {error && <Alert severity="error">Erro: {error.message}</Alert>}
         {data?.evolucaoPreco && (
-          <>
-            {data.evolucaoPreco.map((item, index) => (
-              <Typography key={index}>
+          <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
+            {data.evolucaoPreco.map((item, idx) => (
+              <Typography key={idx} variant="body2">
                 {item.timestamp}: {item.preco}
               </Typography>
             ))}
-          </>
+          </Box>
         )}
       </CardContent>
     </Card>
