@@ -1,102 +1,602 @@
 {
-    "BTC-USD": { "ticker": "BTC", "name": "Bitcoin", "gecko_id": "bitcoin", "cmc_id": 1 },
-    "ETH-USD": { "ticker": "ETH", "name": "Ethereum", "gecko_id": "ethereum", "cmc_id": 1027 },
-    "USDT-USD": { "ticker": "USDT", "name": "Tether USDt", "gecko_id": "tether", "cmc_id": 825 },
-    "BNB-USD": { "ticker": "BNB", "name": "BNB", "gecko_id": "binancecoin", "cmc_id": 1839 },
-    "XRP-USD": { "ticker": "XRP", "name": "XRP", "gecko_id": "ripple", "cmc_id": 52 },
-    "SOL-USD": { "ticker": "SOL", "name": "Solana", "gecko_id": "solana", "cmc_id": 5426 },
-    "USDC-USD": { "ticker": "USDC", "name": "USD Coin", "gecko_id": "usd-coin", "cmc_id": 3408 },
-    "TRX-USD": { "ticker": "TRX", "name": "TRON", "gecko_id": "tron", "cmc_id": 1958 },
-    "STETH-USD": { "ticker": "STETH", "name": "Lido Staked ETH", "gecko_id": "staked-ether", "cmc_id": 8085 },
-    "WTRX-USD": { "ticker": "WTRX", "name": "Wrapped TRON", "gecko_id": "wrapped-tron", "cmc_id": 18579 },
-    "DOGE-USD": { "ticker": "DOGE", "name": "Dogecoin", "gecko_id": "dogecoin", "cmc_id": 74 },
-    "ADA-USD": { "ticker": "ADA", "name": "Cardano", "gecko_id": "cardano", "cmc_id": 2010 },
-    "WSTETH-USD": { "ticker": "WSTETH", "name": "Lido wstETH", "gecko_id": "wrapped-steth", "cmc_id": 12409 },
-    "WBETH-USD": { "ticker": "WBETH", "name": "Wrapped Beacon ETH", "gecko_id": "wrapped-beacon-eth", "cmc_id": 24760 },
-    "WBTC-USD": { "ticker": "WBTC", "name": "Wrapped Bitcoin", "gecko_id": "wrapped-bitcoin", "cmc_id": 3717 },
-    "BCH-USD": { "ticker": "BCH", "name": "Bitcoin Cash", "gecko_id": "bitcoin-cash", "cmc_id": 1831 },
-    "WETH-USD": { "ticker": "WETH", "name": "WETH", "gecko_id": "weth", "cmc_id": 2396 },
-    "AETHWETH-USD": { "ticker": "AETHWETH", "name": "Aave Ethereum WETH", "gecko_id": "aave-weth", "cmc_id": 36458 },
-    "XMR-USD": { "ticker": "XMR", "name": "Monero", "gecko_id": "monero", "cmc_id": 328 },
-    "WEETH-USD": { "ticker": "WEETH", "name": "Wrapped eETH", "gecko_id": "wrapped-eeth", "cmc_id": 28695 },
-    "LINK-USD": { "ticker": "LINK", "name": "Chainlink", "gecko_id": "chainlink", "cmc_id": 1975 },
-    "USDS33039-USD": { "ticker": "USDS", "name": "USDS", "gecko_id": "usds", "cmc_id": 33039 },
-    "LEO-USD": { "ticker": "LEO", "name": "UNUS SED LEO", "gecko_id": "leo-token", "cmc_id": 3957 },
-    "HYPE32196-USD": { "ticker": "HYPE", "name": "Hyperliquid", "gecko_id": "hyperliquid", "cmc_id": 32196 },
-    "XLM-USD": { "ticker": "XLM", "name": "Stellar", "gecko_id": "stellar", "cmc_id": 512 },
-    "CBBTC32994-USD": { "ticker": "CBBTC", "name": "Coinbase Wrapped BTC", "gecko_id": "coinbase-wrapped-btc", "cmc_id": 32994 },
-    "SUI20947-USD": { "ticker": "SUI", "name": "Sui", "gecko_id": "sui", "cmc_id": 20947 },
-    "ZEC-USD": { "ticker": "ZEC", "name": "Zcash", "gecko_id": "zcash", "cmc_id": 1437 },
-    "USDE29470-USD": { "ticker": "USDE", "name": "Ethena USDe", "gecko_id": "ethena-usde", "cmc_id": 29470 },
-    "AETHUSDT-USD": { "ticker": "AETHUSDT", "name": "Aave Ethereum USDT", "gecko_id": "aave-usdt", "cmc_id": 36457 },
-    "BTCB-USD": { "ticker": "BTCB", "name": "Bitcoin BEP2", "gecko_id": "binance-wrapped-btc", "cmc_id": 4023 },
-    "AVAX-USD": { "ticker": "AVAX", "name": "Avalanche", "gecko_id": "avalanche-2", "cmc_id": 5805 },
-    "LTC-USD": { "ticker": "LTC", "name": "Litecoin", "gecko_id": "litecoin", "cmc_id": 2 },
-    "DAI-USD": { "ticker": "DAI", "name": "Dai", "gecko_id": "dai", "cmc_id": 4943 },
-    "HBAR-USD": { "ticker": "HBAR", "name": "Hedera", "gecko_id": "hedera-hashgraph", "cmc_id": 4642 },
-    "SHIB-USD": { "ticker": "SHIB", "name": "Shiba Inu", "gecko_id": "shiba-inu", "cmc_id": 5994 },
-    "WLFI33251-USD": { "ticker": "WLFI", "name": "World Liberty Financial", "gecko_id": "world-liberty-financial", "cmc_id": 33251 },
-    "CC37263-USD": { "ticker": "CC", "name": "Canton", "gecko_id": "canton-network", "cmc_id": 37263 },
-    "TON11419-USD": { "ticker": "TON", "name": "Toncoin", "gecko_id": "the-open-network", "cmc_id": 11419 },
-    "CRO-USD": { "ticker": "CRO", "name": "Cronos", "gecko_id": "crypto-com-chain", "cmc_id": 3635 },
-    "SUSDE-USD": { "ticker": "SUSDE", "name": "Ethena Staked USDe", "gecko_id": "ethena-staked-usde", "cmc_id": 29471 },
-    "PYUSD-USD": { "ticker": "PYUSD", "name": "PayPal USD", "gecko_id": "paypal-usd", "cmc_id": 27772 },
-    "DOT-USD": { "ticker": "DOT", "name": "Polkadot", "gecko_id": "polkadot", "cmc_id": 6636 },
-    "CAKE-USD": { "ticker": "CAKE", "name": "PancakeSwap USD", "gecko_id": "pancakeswap-token", "cmc_id": 7186 },
-    "UNI7083-USD": { "ticker": "UNI", "name": "Uniswap", "gecko_id": "uniswap", "cmc_id": 7083 },
-    "RAIN38341-USD": { "ticker": "RAIN", "name": "Rain", "gecko_id": "rain", "cmc_id": 38341 },
-    "MNT27075-USD": { "ticker": "MNT", "name": "Mantle", "gecko_id": "mantle", "cmc_id": 27075 },
-    "TAO22974-USD": { "ticker": "TAO", "name": "Bittensor", "gecko_id": "bittensor", "cmc_id": 22974 },
-    "AAVE-USD": { "ticker": "AAVE", "name": "Aave", "gecko_id": "aave", "cmc_id": 7278 },
-    "BGB-USD": { "ticker": "BGB", "name": "Bitget Token", "gecko_id": "bitget-token", "cmc_id": 11092 },
-    "PEPE24478-USD": { "ticker": "PEPE", "name": "Pepe", "gecko_id": "pepe", "cmc_id": 24478 },
-    "OKB-USD": { "ticker": "OKB", "name": "OKB", "gecko_id": "okb", "cmc_id": 3897 },
-    "ICP-USD": { "ticker": "ICP", "name": "Internet Computer", "gecko_id": "internet-computer", "cmc_id": 8916 },
-    "NEAR-USD": { "ticker": "NEAR", "name": "NEAR Protocol", "gecko_id": "near", "cmc_id": 6535 },
-    "JITOSOL-USD": { "ticker": "JITOSOL", "name": "Jito Staked SOL", "gecko_id": "jito-staked-sol", "cmc_id": 22533 },
-    "USDF35721-USD": { "ticker": "USDF", "name": "Falcon USD", "gecko_id": "falcon-finance", "cmc_id": 35721 },
-    "BFUSD-USD": { "ticker": "BFUSD", "name": "BFUSD", "gecko_id": "bfusd", "cmc_id": 37760 },
-    "ETC-USD": { "ticker": "ETC", "name": "Ethereum Classic", "gecko_id": "ethereum-classic", "cmc_id": 1321 },
-    "M35491-USD": { "ticker": "M", "name": "MemeCore", "gecko_id": "memecore", "cmc_id": 35491 },
-    "XAUT-USD": { "ticker": "XAUT", "name": "Tether Gold", "gecko_id": "tether-gold", "cmc_id": 5176 },
-    "ASTER36341-USD": { "ticker": "ASTER", "name": "Aster", "gecko_id": "aster-2", "cmc_id": 36341 },
-    "PAXG-USD": { "ticker": "PAXG", "name": "PAX Gold", "gecko_id": "pax-gold", "cmc_id": 4705 },
-    "ENA-USD": { "ticker": "ENA", "name": "Ethena", "gecko_id": "ethena", "cmc_id": 30171 },
-    "PI35697-USD": { "ticker": "PI", "name": "Pi", "gecko_id": "pi-network", "cmc_id": 35697 },
-    "BTCT9486-USD": { "ticker": "BTCT", "name": "Bitcoin TRC20", "gecko_id": "bitcoin-trc20", "cmc_id": 9486 },
-    "JLP-USD": { "ticker": "JLP", "name": "Jupiter Perps LP", "gecko_id": "jupiter-perpetuals-liquidity-provider-token", "cmc_id": 28853 },
-    "USDG33793-USD": { "ticker": "USDG", "name": "Global Dollar", "gecko_id": "global-dollar", "cmc_id": 33793 },
-    "SYRUPUSDC-USD": { "ticker": "SYRUPUSDC", "name": "syrupUSDC", "gecko_id": "syrupusdc", "cmc_id": 38779 },
-    "BNSOL-USD": { "ticker": "BNSOL", "name": "Binance Staked SOL", "gecko_id": "binance-staked-sol", "cmc_id": 32882 },
-    "KCS-USD": { "ticker": "KCS", "name": "KuCoin Token", "gecko_id": "kucoin-shares", "cmc_id": 2087 },
-    "POL28321-USD": { "ticker": "POL", "name": "Polygon ecosystem token", "gecko_id": "polygon-ecosystem-token", "cmc_id": 28321 },
-    "WBNB-USD": { "ticker": "WBNB", "name": "Wrapped BNB", "gecko_id": "wbnb", "cmc_id": 7192 },
-    "SKY33038-USD": { "ticker": "SKY", "name": "Sky", "gecko_id": "sky", "cmc_id": 33038 },
-    "WLD-USD": { "ticker": "WLD", "name": "Worldcoin", "gecko_id": "worldcoin-wld", "cmc_id": 13502 },
-    "RETH-USD": { "ticker": "RETH", "name": "Rocket Pool ETH", "gecko_id": "rocket-pool-eth", "cmc_id": 15060 },
-    "APT21794-USD": { "ticker": "APT", "name": "Aptos", "gecko_id": "aptos", "cmc_id": 21794 },
-    "BBTC31369-USD": { "ticker": "BBTC", "name": "BounceBit BTC", "gecko_id": "bouncebit-btc", "cmc_id": 31369 },
-    "RLUSD-USD": { "ticker": "RLUSD", "name": "Ripple USD", "gecko_id": "ripple-usd", "cmc_id": 34387 },
-    "MYX36410-USD": { "ticker": "MYX", "name": "MYX Finance", "gecko_id": "myx-finance", "cmc_id": 36410 },
-    "ARB11841-USD": { "ticker": "ARB", "name": "Arbitrum", "gecko_id": "arbitrum", "cmc_id": 11841 },
-    "ATOM-USD": { "ticker": "ATOM", "name": "Cosmos Hub", "gecko_id": "cosmos", "cmc_id": 3794 },
-    "RSETH-USD": { "ticker": "RSETH", "name": "Kelp DAO Restaked ETH", "gecko_id": "kelp-dao-restaked-eth", "cmc_id": 29242 },
-    "KAS-USD": { "ticker": "KAS", "name": "Kaspa", "gecko_id": "kaspa", "cmc_id": 20396 },
-    "GT-USD": { "ticker": "GT", "name": "GateToken", "gecko_id": "gatechain-token", "cmc_id": 4269 },
-    "ONDO-USD": { "ticker": "ONDO", "name": "Ondo", "gecko_id": "ondo-finance", "cmc_id": 21159 },
-    "FIL-USD": { "ticker": "FIL", "name": "Filecoin", "gecko_id": "filecoin", "cmc_id": 2280 },
-    "ALGO-USD": { "ticker": "ALGO", "name": "Algorand", "gecko_id": "algorand", "cmc_id": 4030 },
-    "RENDER-USD": { "ticker": "RENDER", "name": "Render", "gecko_id": "render-token", "cmc_id": 5690 },
-    "USDD-USD": { "ticker": "USDD", "name": "USDD", "gecko_id": "usdd", "cmc_id": 19891 },
-    "LBTC33652-USD": { "ticker": "LBTC", "name": "Lombard Staked BTC", "gecko_id": "lombard-staked-btc", "cmc_id": 33652 },
-    "SLISBNB-USD": { "ticker": "SLISBNB", "name": "Lista Staked BNB", "gecko_id": "synclub-staked-bnb", "cmc_id": 27568 },
-    "TRUMP35336-USD": { "ticker": "TRUMP", "name": "OFFICIAL TRUMP", "gecko_id": "official-trump", "cmc_id": 35336 },
-    "FBTC-USD": { "ticker": "FBTC", "name": "Function", "gecko_id": "ignition-fbtc", "cmc_id": 32306 },
-    "NIGHT39064-USD": { "ticker": "NIGHT", "name": "Midnight", "gecko_id": "midnight", "cmc_id": 39064 },
-    "DASH-USD": { "ticker": "DASH", "name": "Dash", "gecko_id": "dash", "cmc_id": 131 },
-    "VET-USD": { "ticker": "VET", "name": "VeChain", "gecko_id": "vechain", "cmc_id": 3077 },
-    "QNT-USD": { "ticker": "QNT", "name": "Quant", "gecko_id": "quant-network", "cmc_id": 3155 },
-    "PUMP36507-USD": { "ticker": "PUMP", "name": "Pump.fun", "gecko_id": "pump-fun", "cmc_id": 36507 },
-    "SOLVBTC-USD": { "ticker": "SOLVBTC", "name": "SolvBTC", "gecko_id": "solv-btc", "cmc_id": 33312 },
-    "USDCE-USD": { "ticker": "USDCE", "name": "USD Coin Bridged", "gecko_id": "usd-coin-wormhole-from-ethereum", "cmc_id": 18852 }
+    "BTC-USD": {
+        "ticker": "BTC",
+        "name": "Bitcoin",
+        "gecko_id": "bitcoin",
+        "cmc_id": 1
+    },
+    "ETH-USD": {
+        "ticker": "ETH",
+        "name": "Ethereum",
+        "gecko_id": "ethereum",
+        "cmc_id": 1027
+    },
+    "USDT-USD": {
+        "ticker": "USDT",
+        "name": "Tether USDt",
+        "gecko_id": "tether",
+        "cmc_id": 825
+    },
+    "BNB-USD": {
+        "ticker": "BNB",
+        "name": "BNB",
+        "gecko_id": "binancecoin",
+        "cmc_id": 1839
+    },
+    "XRP-USD": {
+        "ticker": "XRP",
+        "name": "XRP",
+        "gecko_id": "ripple",
+        "cmc_id": 52
+    },
+    "SOL-USD": {
+        "ticker": "SOL",
+        "name": "Solana",
+        "gecko_id": "solana",
+        "cmc_id": 5426
+    },
+    "USDC-USD": {
+        "ticker": "USDC",
+        "name": "USD Coin",
+        "gecko_id": "usd-coin",
+        "cmc_id": 3408
+    },
+    "TRX-USD": {
+        "ticker": "TRX",
+        "name": "TRON",
+        "gecko_id": "tron",
+        "cmc_id": 1958
+    },
+    "STETH-USD": {
+        "ticker": "STETH",
+        "name": "Lido Staked ETH",
+        "gecko_id": "staked-ether",
+        "cmc_id": 8085
+    },
+    "WTRX-USD": {
+        "ticker": "WTRX",
+        "name": "Wrapped TRON",
+        "gecko_id": "wrapped-tron",
+        "cmc_id": 18579
+    },
+    "DOGE-USD": {
+        "ticker": "DOGE",
+        "name": "Dogecoin",
+        "gecko_id": "dogecoin",
+        "cmc_id": 74
+    },
+    "ADA-USD": {
+        "ticker": "ADA",
+        "name": "Cardano",
+        "gecko_id": "cardano",
+        "cmc_id": 2010
+    },
+    "WSTETH-USD": {
+        "ticker": "WSTETH",
+        "name": "Lido wstETH",
+        "gecko_id": "wrapped-steth",
+        "cmc_id": 12409
+    },
+    "WBETH-USD": {
+        "ticker": "WBETH",
+        "name": "Wrapped Beacon ETH",
+        "gecko_id": "wrapped-beacon-eth",
+        "cmc_id": 24760
+    },
+    "WBTC-USD": {
+        "ticker": "WBTC",
+        "name": "Wrapped Bitcoin",
+        "gecko_id": "wrapped-bitcoin",
+        "cmc_id": 3717
+    },
+    "BCH-USD": {
+        "ticker": "BCH",
+        "name": "Bitcoin Cash",
+        "gecko_id": "bitcoin-cash",
+        "cmc_id": 1831
+    },
+    "WETH-USD": {
+        "ticker": "WETH",
+        "name": "WETH",
+        "gecko_id": "weth",
+        "cmc_id": 2396
+    },
+    "AETHWETH-USD": {
+        "ticker": "AETHWETH",
+        "name": "Aave Ethereum WETH",
+        "gecko_id": "aave-weth",
+        "cmc_id": 36458
+    },
+    "XMR-USD": {
+        "ticker": "XMR",
+        "name": "Monero",
+        "gecko_id": "monero",
+        "cmc_id": 328
+    },
+    "WEETH-USD": {
+        "ticker": "WEETH",
+        "name": "Wrapped eETH",
+        "gecko_id": "wrapped-eeth",
+        "cmc_id": 28695
+    },
+    "LINK-USD": {
+        "ticker": "LINK",
+        "name": "Chainlink",
+        "gecko_id": "chainlink",
+        "cmc_id": 1975
+    },
+    "USDS33039-USD": {
+        "ticker": "USDS",
+        "name": "USDS",
+        "gecko_id": "usds",
+        "cmc_id": 33039
+    },
+    "LEO-USD": {
+        "ticker": "LEO",
+        "name": "UNUS SED LEO",
+        "gecko_id": "leo-token",
+        "cmc_id": 3957
+    },
+    "HYPE32196-USD": {
+        "ticker": "HYPE",
+        "name": "Hyperliquid",
+        "gecko_id": "hyperliquid",
+        "cmc_id": 32196
+    },
+    "XLM-USD": {
+        "ticker": "XLM",
+        "name": "Stellar",
+        "gecko_id": "stellar",
+        "cmc_id": 512
+    },
+    "CBBTC32994-USD": {
+        "ticker": "CBBTC",
+        "name": "Coinbase Wrapped BTC",
+        "gecko_id": "coinbase-wrapped-btc",
+        "cmc_id": 32994
+    },
+    "SUI20947-USD": {
+        "ticker": "SUI",
+        "name": "Sui",
+        "gecko_id": "sui",
+        "cmc_id": 20947
+    },
+    "ZEC-USD": {
+        "ticker": "ZEC",
+        "name": "Zcash",
+        "gecko_id": "zcash",
+        "cmc_id": 1437
+    },
+    "USDE29470-USD": {
+        "ticker": "USDE",
+        "name": "Ethena USDe",
+        "gecko_id": "ethena-usde",
+        "cmc_id": 29470
+    },
+    "AETHUSDT-USD": {
+        "ticker": "AETHUSDT",
+        "name": "Aave Ethereum USDT",
+        "gecko_id": "aave-usdt",
+        "cmc_id": 36457
+    },
+    "BTCB-USD": {
+        "ticker": "BTCB",
+        "name": "Bitcoin BEP2",
+        "gecko_id": "binance-wrapped-btc",
+        "cmc_id": 4023
+    },
+    "AVAX-USD": {
+        "ticker": "AVAX",
+        "name": "Avalanche",
+        "gecko_id": "avalanche-2",
+        "cmc_id": 5805
+    },
+    "LTC-USD": {
+        "ticker": "LTC",
+        "name": "Litecoin",
+        "gecko_id": "litecoin",
+        "cmc_id": 2
+    },
+    "DAI-USD": {
+        "ticker": "DAI",
+        "name": "Dai",
+        "gecko_id": "dai",
+        "cmc_id": 4943
+    },
+    "HBAR-USD": {
+        "ticker": "HBAR",
+        "name": "Hedera",
+        "gecko_id": "hedera-hashgraph",
+        "cmc_id": 4642
+    },
+    "SHIB-USD": {
+        "ticker": "SHIB",
+        "name": "Shiba Inu",
+        "gecko_id": "shiba-inu",
+        "cmc_id": 5994
+    },
+    "WLFI33251-USD": {
+        "ticker": "WLFI",
+        "name": "World Liberty Financial",
+        "gecko_id": "world-liberty-financial",
+        "cmc_id": 33251
+    },
+    "CC37263-USD": {
+        "ticker": "CC",
+        "name": "Canton",
+        "gecko_id": "canton-network",
+        "cmc_id": 37263
+    },
+    "TON11419-USD": {
+        "ticker": "TON",
+        "name": "Toncoin",
+        "gecko_id": "the-open-network",
+        "cmc_id": 11419
+    },
+    "CRO-USD": {
+        "ticker": "CRO",
+        "name": "Cronos",
+        "gecko_id": "crypto-com-chain",
+        "cmc_id": 3635
+    },
+    "SUSDE-USD": {
+        "ticker": "SUSDE",
+        "name": "Ethena Staked USDe",
+        "gecko_id": "ethena-staked-usde",
+        "cmc_id": 29471
+    },
+    "PYUSD-USD": {
+        "ticker": "PYUSD",
+        "name": "PayPal USD",
+        "gecko_id": "paypal-usd",
+        "cmc_id": 27772
+    },
+    "DOT-USD": {
+        "ticker": "DOT",
+        "name": "Polkadot",
+        "gecko_id": "polkadot",
+        "cmc_id": 6636
+    },
+    "CAKE-USD": {
+        "ticker": "CAKE",
+        "name": "PancakeSwap USD",
+        "gecko_id": "pancakeswap-token",
+        "cmc_id": 7186
+    },
+    "UNI7083-USD": {
+        "ticker": "UNI",
+        "name": "Uniswap",
+        "gecko_id": "uniswap",
+        "cmc_id": 7083
+    },
+    "RAIN38341-USD": {
+        "ticker": "RAIN",
+        "name": "Rain",
+        "gecko_id": "rain",
+        "cmc_id": 38341
+    },
+    "MNT27075-USD": {
+        "ticker": "MNT",
+        "name": "Mantle",
+        "gecko_id": "mantle",
+        "cmc_id": 27075
+    },
+    "TAO22974-USD": {
+        "ticker": "TAO",
+        "name": "Bittensor",
+        "gecko_id": "bittensor",
+        "cmc_id": 22974
+    },
+    "AAVE-USD": {
+        "ticker": "AAVE",
+        "name": "Aave",
+        "gecko_id": "aave",
+        "cmc_id": 7278
+    },
+    "BGB-USD": {
+        "ticker": "BGB",
+        "name": "Bitget Token",
+        "gecko_id": "bitget-token",
+        "cmc_id": 11092
+    },
+    "PEPE24478-USD": {
+        "ticker": "PEPE",
+        "name": "Pepe",
+        "gecko_id": "pepe",
+        "cmc_id": 24478
+    },
+    "OKB-USD": {
+        "ticker": "OKB",
+        "name": "OKB",
+        "gecko_id": "okb",
+        "cmc_id": 3897
+    },
+    "ICP-USD": {
+        "ticker": "ICP",
+        "name": "Internet Computer",
+        "gecko_id": "internet-computer",
+        "cmc_id": 8916
+    },
+    "NEAR-USD": {
+        "ticker": "NEAR",
+        "name": "NEAR Protocol",
+        "gecko_id": "near",
+        "cmc_id": 6535
+    },
+    "JITOSOL-USD": {
+        "ticker": "JITOSOL",
+        "name": "Jito Staked SOL",
+        "gecko_id": "jito-staked-sol",
+        "cmc_id": 22533
+    },
+    "USDF35721-USD": {
+        "ticker": "USDF",
+        "name": "Falcon USD",
+        "gecko_id": "falcon-finance",
+        "cmc_id": 35721
+    },
+    "BFUSD-USD": {
+        "ticker": "BFUSD",
+        "name": "BFUSD",
+        "gecko_id": "bfusd",
+        "cmc_id": 37760
+    },
+    "ETC-USD": {
+        "ticker": "ETC",
+        "name": "Ethereum Classic",
+        "gecko_id": "ethereum-classic",
+        "cmc_id": 1321
+    },
+    "M35491-USD": {
+        "ticker": "M",
+        "name": "MemeCore",
+        "gecko_id": "memecore",
+        "cmc_id": 35491
+    },
+    "XAUT-USD": {
+        "ticker": "XAUT",
+        "name": "Tether Gold",
+        "gecko_id": "tether-gold",
+        "cmc_id": 5176
+    },
+    "ASTER36341-USD": {
+        "ticker": "ASTER",
+        "name": "Aster",
+        "gecko_id": "aster-2",
+        "cmc_id": 36341
+    },
+    "PAXG-USD": {
+        "ticker": "PAXG",
+        "name": "PAX Gold",
+        "gecko_id": "pax-gold",
+        "cmc_id": 4705
+    },
+    "ENA-USD": {
+        "ticker": "ENA",
+        "name": "Ethena",
+        "gecko_id": "ethena",
+        "cmc_id": 30171
+    },
+    "PI35697-USD": {
+        "ticker": "PI",
+        "name": "Pi",
+        "gecko_id": "pi-network",
+        "cmc_id": 35697
+    },
+    "BTCT9486-USD": {
+        "ticker": "BTCT",
+        "name": "Bitcoin TRC20",
+        "gecko_id": "bitcoin-trc20",
+        "cmc_id": 9486
+    },
+    "JLP-USD": {
+        "ticker": "JLP",
+        "name": "Jupiter Perps LP",
+        "gecko_id": "jupiter-perpetuals-liquidity-provider-token",
+        "cmc_id": 28853
+    },
+    "USDG33793-USD": {
+        "ticker": "USDG",
+        "name": "Global Dollar",
+        "gecko_id": "global-dollar",
+        "cmc_id": 33793
+    },
+    "SYRUPUSDC-USD": {
+        "ticker": "SYRUPUSDC",
+        "name": "syrupUSDC",
+        "gecko_id": "syrupusdc",
+        "cmc_id": 38779
+    },
+    "BNSOL-USD": {
+        "ticker": "BNSOL",
+        "name": "Binance Staked SOL",
+        "gecko_id": "binance-staked-sol",
+        "cmc_id": 32882
+    },
+    "KCS-USD": {
+        "ticker": "KCS",
+        "name": "KuCoin Token",
+        "gecko_id": "kucoin-shares",
+        "cmc_id": 2087
+    },
+    "POL28321-USD": {
+        "ticker": "POL",
+        "name": "Polygon ecosystem token",
+        "gecko_id": "polygon-ecosystem-token",
+        "cmc_id": 28321
+    },
+    "WBNB-USD": {
+        "ticker": "WBNB",
+        "name": "Wrapped BNB",
+        "gecko_id": "wbnb",
+        "cmc_id": 7192
+    },
+    "SKY33038-USD": {
+        "ticker": "SKY",
+        "name": "Sky",
+        "gecko_id": "sky",
+        "cmc_id": 33038
+    },
+    "WLD-USD": {
+        "ticker": "WLD",
+        "name": "Worldcoin",
+        "gecko_id": "worldcoin-wld",
+        "cmc_id": 13502
+    },
+    "RETH-USD": {
+        "ticker": "RETH",
+        "name": "Rocket Pool ETH",
+        "gecko_id": "rocket-pool-eth",
+        "cmc_id": 15060
+    },
+    "APT21794-USD": {
+        "ticker": "APT",
+        "name": "Aptos",
+        "gecko_id": "aptos",
+        "cmc_id": 21794
+    },
+    "BBTC31369-USD": {
+        "ticker": "BBTC",
+        "name": "BounceBit BTC",
+        "gecko_id": "bouncebit-btc",
+        "cmc_id": 31369
+    },
+    "RLUSD-USD": {
+        "ticker": "RLUSD",
+        "name": "Ripple USD",
+        "gecko_id": "ripple-usd",
+        "cmc_id": 34387
+    },
+    "MYX36410-USD": {
+        "ticker": "MYX",
+        "name": "MYX Finance",
+        "gecko_id": "myx-finance",
+        "cmc_id": 36410
+    },
+    "ARB11841-USD": {
+        "ticker": "ARB",
+        "name": "Arbitrum",
+        "gecko_id": "arbitrum",
+        "cmc_id": 11841
+    },
+    "ATOM-USD": {
+        "ticker": "ATOM",
+        "name": "Cosmos Hub",
+        "gecko_id": "cosmos",
+        "cmc_id": 3794
+    },
+    "RSETH-USD": {
+        "ticker": "RSETH",
+        "name": "Kelp DAO Restaked ETH",
+        "gecko_id": "kelp-dao-restaked-eth",
+        "cmc_id": 29242
+    },
+    "KAS-USD": {
+        "ticker": "KAS",
+        "name": "Kaspa",
+        "gecko_id": "kaspa",
+        "cmc_id": 20396
+    },
+    "GT-USD": {
+        "ticker": "GT",
+        "name": "GateToken",
+        "gecko_id": "gatechain-token",
+        "cmc_id": 4269
+    },
+    "ONDO-USD": {
+        "ticker": "ONDO",
+        "name": "Ondo",
+        "gecko_id": "ondo-finance",
+        "cmc_id": 21159
+    },
+    "FIL-USD": {
+        "ticker": "FIL",
+        "name": "Filecoin",
+        "gecko_id": "filecoin",
+        "cmc_id": 2280
+    },
+    "ALGO-USD": {
+        "ticker": "ALGO",
+        "name": "Algorand",
+        "gecko_id": "algorand",
+        "cmc_id": 4030
+    },
+    "RENDER-USD": {
+        "ticker": "RENDER",
+        "name": "Render",
+        "gecko_id": "render-token",
+        "cmc_id": 5690
+    },
+    "USDD-USD": {
+        "ticker": "USDD",
+        "name": "USDD",
+        "gecko_id": "usdd",
+        "cmc_id": 19891
+    },
+    "LBTC33652-USD": {
+        "ticker": "LBTC",
+        "name": "Lombard Staked BTC",
+        "gecko_id": "lombard-staked-btc",
+        "cmc_id": 33652
+    },
+    "SLISBNB-USD": {
+        "ticker": "SLISBNB",
+        "name": "Lista Staked BNB",
+        "gecko_id": "synclub-staked-bnb",
+        "cmc_id": 27568
+    },
+    "TRUMP35336-USD": {
+        "ticker": "TRUMP",
+        "name": "OFFICIAL TRUMP",
+        "gecko_id": "official-trump",
+        "cmc_id": 35336
+    },
+    "FBTC-USD": {
+        "ticker": "FBTC",
+        "name": "Function",
+        "gecko_id": "ignition-fbtc",
+        "cmc_id": 32306
+    },
+    "NIGHT39064-USD": {
+        "ticker": "NIGHT",
+        "name": "Midnight",
+        "gecko_id": "midnight",
+        "cmc_id": 39064
+    },
+    "DASH-USD": {
+        "ticker": "DASH",
+        "name": "Dash",
+        "gecko_id": "dash",
+        "cmc_id": 131
+    },
+    "VET-USD": {
+        "ticker": "VET",
+        "name": "VeChain",
+        "gecko_id": "vechain",
+        "cmc_id": 3077
+    },
+    "QNT-USD": {
+        "ticker": "QNT",
+        "name": "Quant",
+        "gecko_id": "quant-network",
+        "cmc_id": 3155
+    },
+    "PUMP36507-USD": {
+        "ticker": "PUMP",
+        "name": "Pump.fun",
+        "gecko_id": "pump-fun",
+        "cmc_id": 36507
+    },
+    "SOLVBTC-USD": {
+        "ticker": "SOLVBTC",
+        "name": "SolvBTC",
+        "gecko_id": "solv-btc",
+        "cmc_id": 33312
+    },
+    "USDCE-USD": {
+        "ticker": "USDCE",
+        "name": "USD Coin Bridged",
+        "gecko_id": "usd-coin-wormhole-from-ethereum",
+        "cmc_id": 18852
+    }
 }

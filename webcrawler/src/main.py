@@ -55,12 +55,9 @@ def extract_symbol(td):
     link = td.find("a")
     if not link:
         return None
-
-    # texto directo do <a>, sem herdar spans
     if link.string:
         return link.string.strip().upper()
 
-    # fallback defensivo (último token tipo XXX-USD)
     text = link.get_text(" ", strip=True).upper()
     match = re.search(r"[A-Z0-9]+-USD", text)
     return match.group(0) if match else None

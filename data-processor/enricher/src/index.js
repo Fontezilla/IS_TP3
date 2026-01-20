@@ -1,21 +1,64 @@
-require('dotenv').config();
-const amqp = require('amqplib');
-const { createClient } = require('@supabase/supabase-js');
-const { parse } = require('csv-parse/sync');
-const normalizer = require('./normalizer');
+const http = require('http');
+const port = process.env.PORT || 8080;
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
-const INPUT_QUEUE = 'raw-data';
-const OUTPUT_QUEUE = 'process-data';
+let isReady = false;
+let startupError = null;
 
-async function startEnricher() {
-    console.log("[Enricher] A iniciar serviço...");
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    if (startupError) {
+        res.end(`Error: ${startupError}`);
+    } else {
+        res.end(isReady ? 'Service is running!' : 'Starting...');
+    }
+});
 
-    const conn = await amqp.connect(RABBITMQ_URL);
+server.listen(port, '0.0.0.0',() => {
+    console.log(`[Enricher] HTTP server listening on port ${port}`);
+
+    setTimeout(() => {
+        initializeServices().catch(err => {
+            console.error('[Enricher] Erro fatal:', err);
+            startupError = err.message;
+        });
+    }, 100);
+});
+
+async function initializeServices() {
+    try {
+        console.log('[Enricher] A carregar modulos...');
+
+        require('dotenv').config();
+        const amqp = require('amqplib');
+        const { createClient } = require('@supabase/supabase-js');
+        const { parse } = require('csv-parse/sync');
+        const normalizer = require('./normalizer');
+
+        console.log('[Enricher] Modulos carregados');
+
+        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+        console.log('[Enricher] Supabase inicializado');
+
+        await startEnricher(amqp, supabase, parse, normalizer);
+        isReady = true;
+        console.log('[Enricher] Conectado com sucesso');
+    } catch (err) {
+        console.error('[Enricher] Erro ao inicializar:', err.message);
+        startupError = err.message;
+    }
+}
+
+async function startEnricher(amqp, supabase, parse, normalizer) {
+    const INPUT_QUEUE = 'raw-data';
+    const OUTPUT_QUEUE = 'process-data';
+
+    console.log("[Enricher] A conectar ao RabbitMQ...");
+
+    const conn = await amqp.connect(process.env.RABBITMQ_URL);
     const channel = await conn.createChannel();
     await channel.assertQueue(INPUT_QUEUE, { durable: true });
     await channel.assertQueue(OUTPUT_QUEUE, { durable: true });
+    await channel.prefetch(1);
 
     console.log("[Enricher] Aguardando mensagens...");
 
@@ -93,20 +136,21 @@ async function startEnricher() {
 
         } catch (err) {
             console.error(`[Job ${jobID}] Falha:`, err.message);
-            channel.nack(msg);
+
+            const retryCount = (msg.properties.headers && msg.properties.headers['x-retry-count']) || 0;
+            const maxRetries = 3;
+
+            if (retryCount < maxRetries) {
+                console.log(`[Job ${jobID}] Retry ${retryCount + 1}/${maxRetries}...`);
+                channel.sendToQueue(INPUT_QUEUE, msg.content, {
+                    persistent: true,
+                    headers: { 'x-retry-count': retryCount + 1 }
+                });
+                channel.ack(msg);
+            } else {
+                console.error(`[Job ${jobID}] Max retries atingido. Mensagem descartada.`);
+                channel.ack(msg);
+            }
         }
     });
 }
-
-startEnricher();
-
-// Pequenas Adaptações para correr no google cloud run:
-const http = require('http');
-const port = process.env.PORT || 8080;
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.end('Service is running!');
-});
-server.listen(port, () => {
-    console.log(`Keep-alive server listening on port ${port}`);
-})

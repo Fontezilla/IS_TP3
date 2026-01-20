@@ -53,23 +53,32 @@ func (r *XmlRepository) Close() error {
 	return r.db.Close()
 }
 
+// GetEvolucaoPreco retorna a evolucao do preco de um ticker num periodo
+// Agrupa por timestamp para evitar duplicados e usa o preco medio se houver varios no mesmo momento
 func (r *XmlRepository) GetEvolucaoPreco(ctx context.Context, ticker, from, to string) ([]EvolucaoPreco, error) {
 	query := `
+WITH dados AS (
+  SELECT
+    xt.ts,
+    xt.preco
+  FROM xml_service.xml_documents d,
+  XMLTABLE(
+    '/CryptoReport/AtivoCripto'
+    PASSING CAST(d.xml_content AS xml)
+    COLUMNS
+      ticker TEXT PATH 'Identificacao/Ticker',
+      preco NUMERIC PATH 'DadosMercado/PrecoAtual',
+      ts TEXT PATH 'Metadados/Timestamp'
+  ) xt
+  WHERE xt.ticker = $1
+    AND CAST(xt.ts AS timestamptz) BETWEEN CAST($2 AS timestamptz) AND CAST($3 AS timestamptz)
+)
 SELECT
-  xt.ts,
-  xt.preco
-FROM xml_service.xml_documents d,
-XMLTABLE(
-  '/CryptoReport/AtivoCripto'
-  PASSING CAST(d.xml_content AS xml)
-  COLUMNS
-    ticker TEXT PATH 'Identificacao/Ticker',
-    preco NUMERIC PATH 'DadosMercado/PrecoAtual',
-    ts TEXT PATH 'Metadados/Timestamp'
-) xt
-WHERE xt.ticker = $1
-  AND CAST(xt.ts AS timestamptz) BETWEEN CAST($2 AS timestamptz) AND CAST($3 AS timestamptz)
-ORDER BY xt.ts;
+  ts,
+  AVG(preco) as preco
+FROM dados
+GROUP BY ts
+ORDER BY ts;
 `
 	rows, err := r.db.QueryContext(ctx, query, ticker, from, to)
 	if err != nil {
@@ -89,21 +98,31 @@ ORDER BY xt.ts;
 	return res, nil
 }
 
+// GetRankingPorDominancia retorna o ranking dos ativos por dominancia de mercado
+// Usa apenas o registo mais recente de cada ticker para evitar duplicados
 func (r *XmlRepository) GetRankingPorDominancia(ctx context.Context, limit int) ([]RankingDominancia, error) {
 	query := `
-SELECT
-  xt.ticker,
-  xt.dominancia
-FROM xml_service.xml_documents d,
-XMLTABLE(
-  '/CryptoReport/AtivoCripto'
-  PASSING CAST(d.xml_content AS xml)
-  COLUMNS
-    ticker TEXT PATH 'Identificacao/Ticker',
-    dominancia NUMERIC PATH 'MetricasAvancadas/DominanciaMercado'
-) xt
-WHERE xt.dominancia IS NOT NULL
-ORDER BY xt.dominancia DESC
+WITH dados AS (
+  SELECT
+    xt.ticker,
+    xt.dominancia,
+    xt.ts,
+    ROW_NUMBER() OVER (PARTITION BY xt.ticker ORDER BY CAST(xt.ts AS timestamptz) DESC) as rn
+  FROM xml_service.xml_documents d,
+  XMLTABLE(
+    '/CryptoReport/AtivoCripto'
+    PASSING CAST(d.xml_content AS xml)
+    COLUMNS
+      ticker TEXT PATH 'Identificacao/Ticker',
+      dominancia NUMERIC PATH 'MetricasAvancadas/DominanciaMercado',
+      ts TEXT PATH 'Metadados/Timestamp'
+  ) xt
+  WHERE xt.dominancia IS NOT NULL
+)
+SELECT ticker, dominancia
+FROM dados
+WHERE rn = 1
+ORDER BY dominancia DESC
 LIMIT $1;
 `
 	rows, err := r.db.QueryContext(ctx, query, limit)
@@ -124,22 +143,31 @@ LIMIT $1;
 	return res, nil
 }
 
+// GetPrecoMedioPorAtivo retorna o preco medio de cada ativo num periodo
+// Calcula a media de todos os registos temporais de cada ticker
 func (r *XmlRepository) GetPrecoMedioPorAtivo(ctx context.Context, from, to string) ([]PrecoMedioAtivo, error) {
 	query := `
+WITH dados AS (
+  SELECT
+    xt.ticker,
+    xt.preco,
+    xt.ts
+  FROM xml_service.xml_documents d,
+  XMLTABLE(
+    '/CryptoReport/AtivoCripto'
+    PASSING CAST(d.xml_content AS xml)
+    COLUMNS
+      ticker TEXT PATH 'Identificacao/Ticker',
+      preco NUMERIC PATH 'DadosMercado/PrecoAtual',
+      ts TEXT PATH 'Metadados/Timestamp'
+  ) xt
+  WHERE CAST(xt.ts AS timestamptz) BETWEEN CAST($1 AS timestamptz) AND CAST($2 AS timestamptz)
+)
 SELECT
-  xt.ticker,
-  AVG(xt.preco) AS preco_medio
-FROM xml_service.xml_documents d,
-XMLTABLE(
-  '/CryptoReport/AtivoCripto'
-  PASSING CAST(d.xml_content AS xml)
-  COLUMNS
-    ticker TEXT PATH 'Identificacao/Ticker',
-    preco NUMERIC PATH 'DadosMercado/PrecoAtual',
-    ts TEXT PATH 'Metadados/Timestamp'
-) xt
-WHERE CAST(xt.ts AS timestamptz) BETWEEN CAST($1 AS timestamptz) AND CAST($2 AS timestamptz)
-GROUP BY xt.ticker
+  ticker,
+  AVG(preco) AS preco_medio
+FROM dados
+GROUP BY ticker
 ORDER BY preco_medio DESC;
 `
 	rows, err := r.db.QueryContext(ctx, query, from, to)

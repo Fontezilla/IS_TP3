@@ -103,26 +103,41 @@ func startHealthServer(serviceName string) {
 
 func processMessage(d amqp.Delivery, outputQueue string) {
 	var job common.JobRequest
-	json.Unmarshal(d.Body, &job)
+	if err := json.Unmarshal(d.Body, &job); err != nil {
+		log.Printf("[ERRO] Falha ao parse mensagem: %v", err)
+		d.Nack(false, false) // Mensagem malformada - descartar
+		return
+	}
+
+	// Obter retry count do header
+	retryCount := 0
+	if d.Headers != nil {
+		if rc, ok := d.Headers["x-retry-count"].(int32); ok {
+			retryCount = int(rc)
+		} else if rc, ok := d.Headers["x-retry-count"].(int64); ok {
+			retryCount = int(rc)
+		}
+	}
+	maxRetries := 3
 
 	csvBytes, err := common.DownloadFile(fmt.Sprintf("%s/data.csv", job.JobID))
 	if err != nil {
 		log.Printf("[ERRO] Job %s: falha ao obter CSV - %v", job.JobID, err)
-		d.Nack(false, false)
+		handleRetry(d, job, retryCount, maxRetries, "q_xml_transform")
 		return
 	}
 
 	mapperBytes, err := common.DownloadFile(fmt.Sprintf("%s/mapper.json", job.JobID))
 	if err != nil {
 		log.Printf("[ERRO] Job %s: mapper.json nao encontrado - %v", job.JobID, err)
-		d.Nack(false, false)
+		d.Nack(false, false) // Erro permanente - ficheiro em falta
 		return
 	}
 
 	var mapper MapperFile
 	if err := json.Unmarshal(mapperBytes, &mapper); err != nil {
 		log.Printf("[ERRO] Job %s: mapper.json invalido - %v", job.JobID, err)
-		d.Nack(false, false)
+		d.Nack(false, false) // Erro permanente - formato invalido
 		return
 	}
 
@@ -160,21 +175,55 @@ func processMessage(d amqp.Delivery, outputQueue string) {
 		return
 	}
 
-	common.UploadToSupabase(fmt.Sprintf("%s/result.xml", job.JobID), bytes.NewReader(xmlBytes), "application/xml")
+	// Upload com verificacao de erro
+	if err := common.UploadToSupabase(fmt.Sprintf("%s/result.xml", job.JobID), bytes.NewReader(xmlBytes), "application/xml"); err != nil {
+		log.Printf("[ERRO] Job %s: falha upload XML - %v", job.JobID, err)
+		handleRetry(d, job, retryCount, maxRetries, "q_xml_transform")
+		return
+	}
 
 	newBody, _ := json.Marshal(job)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	rabbitCh.PublishWithContext(ctx, "", outputQueue, false, false, amqp.Publishing{
+	// Publish com verificacao de erro
+	if err := rabbitCh.PublishWithContext(ctx, "", outputQueue, false, false, amqp.Publishing{
 		ContentType:  "application/json",
 		DeliveryMode: amqp.Persistent,
 		Body:         newBody,
-	})
+	}); err != nil {
+		log.Printf("[ERRO] Job %s: falha publish - %v", job.JobID, err)
+		handleRetry(d, job, retryCount, maxRetries, "q_xml_transform")
+		return
+	}
 
 	d.Ack(false)
 	log.Printf("[OK] Job %s transformado", job.JobID)
+}
+
+func handleRetry(d amqp.Delivery, job common.JobRequest, retryCount, maxRetries int, queueName string) {
+	if retryCount < maxRetries-1 {
+		log.Printf("[Job %s] Retry %d/%d...", job.JobID, retryCount+1, maxRetries)
+		// ACK mensagem atual e reenviar com retry incrementado
+		d.Ack(false)
+
+		body, _ := json.Marshal(job)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		rabbitCh.PublishWithContext(ctx, "", queueName, false, false, amqp.Publishing{
+			ContentType:  "application/json",
+			DeliveryMode: amqp.Persistent,
+			Body:         body,
+			Headers: amqp.Table{
+				"x-retry-count": int32(retryCount + 1),
+			},
+		})
+	} else {
+		log.Printf("[Job %s] Max retries (%d) atingido. Descartando.", job.JobID, maxRetries)
+		d.Ack(false) // ACK para remover da queue
+	}
 }
 
 func parseOrderedStructure(raw json.RawMessage) ([]OrderedField, error) {

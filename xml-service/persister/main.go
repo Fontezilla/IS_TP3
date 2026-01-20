@@ -51,7 +51,8 @@ func main() {
 	q, err := rabbitCh.QueueDeclare("q_xml_persist", true, false, false, false, nil)
 	common.FailOnError(err, "Falha ao declarar fila")
 
-	rabbitCh.Qos(1, 0, false)
+	err = rabbitCh.Qos(1, 0, false)
+	common.FailOnError(err, "Falha QoS")
 
 	msgs, err := rabbitCh.Consume(q.Name, "", false, false, false, false, nil)
 	common.FailOnError(err, "Falha ao consumir fila")
@@ -108,18 +109,28 @@ func processMessage(d amqp.Delivery) {
 	var job common.JobRequest
 	if err := json.Unmarshal(d.Body, &job); err != nil {
 		log.Printf("Erro parse mensagem: %v", err)
-		d.Nack(false, false)
+		d.Nack(false, false) // Mensagem malformada - descartar
 		return
 	}
 
-	log.Printf("A persistir job: %s", job.JobID)
+	// Obter retry count do header
+	retryCount := 0
+	if d.Headers != nil {
+		if rc, ok := d.Headers["x-retry-count"].(int32); ok {
+			retryCount = int(rc)
+		} else if rc, ok := d.Headers["x-retry-count"].(int64); ok {
+			retryCount = int(rc)
+		}
+	}
+	maxRetries := 3
+
+	log.Printf("A persistir job: %s (tentativa %d/%d)", job.JobID, retryCount+1, maxRetries)
 
 	pathXML := fmt.Sprintf("%s/result.xml", job.JobID)
 	xmlBytes, err := common.DownloadFile(pathXML)
 	if err != nil {
 		log.Printf("Erro download XML para job %s: %v", job.JobID, err)
-		notifyWebhook(job.WebhookURL, job.JobID, "FAILED", "Erro ao obter XML")
-		d.Nack(false, false)
+		handlePersisterRetry(d, job, retryCount, maxRetries, "Erro ao obter XML")
 		return
 	}
 
@@ -130,13 +141,14 @@ func processMessage(d amqp.Delivery) {
 		XSDVersion:    job.XSDVersion,
 	}
 
-	maxRetries := 3
+	// Tentar upsert com backoff interno
+	internalRetries := 3
 	var lastErr error
-	for i := 0; i < maxRetries; i++ {
+	for i := 0; i < internalRetries; i++ {
 		if err := upsertToSupabase(doc); err != nil {
 			lastErr = err
-			log.Printf("Erro Supabase para job %s (tentativa %d/%d): %v", job.JobID, i+1, maxRetries, err)
-			if i < maxRetries-1 {
+			log.Printf("Erro Supabase para job %s (tentativa interna %d/%d): %v", job.JobID, i+1, internalRetries, err)
+			if i < internalRetries-1 {
 				time.Sleep(time.Duration(i+1) * 2 * time.Second)
 			}
 			continue
@@ -146,9 +158,8 @@ func processMessage(d amqp.Delivery) {
 	}
 
 	if lastErr != nil {
-		log.Printf("Job %s falhou apos %d tentativas", job.JobID, maxRetries)
-		notifyWebhook(job.WebhookURL, job.JobID, "FAILED", "Erro ao guardar na base de dados")
-		d.Nack(false, false)
+		log.Printf("Job %s falhou apos tentativas internas", job.JobID)
+		handlePersisterRetry(d, job, retryCount, maxRetries, "Erro ao guardar na base de dados")
 		return
 	}
 
@@ -162,6 +173,27 @@ func processMessage(d amqp.Delivery) {
 
 	d.Ack(false)
 	log.Printf("[OK] Job %s concluido", job.JobID)
+}
+
+func handlePersisterRetry(d amqp.Delivery, job common.JobRequest, retryCount, maxRetries int, failReason string) {
+	if retryCount < maxRetries-1 {
+		log.Printf("[Job %s] A agendar retry %d/%d...", job.JobID, retryCount+2, maxRetries)
+		d.Ack(false)
+
+		body, _ := json.Marshal(job)
+		rabbitCh.Publish("", "q_xml_persist", false, false, amqp.Publishing{
+			ContentType:  "application/json",
+			DeliveryMode: amqp.Persistent,
+			Body:         body,
+			Headers: amqp.Table{
+				"x-retry-count": int32(retryCount + 1),
+			},
+		})
+	} else {
+		log.Printf("[Job %s] Max retries (%d) atingido. Descartando.", job.JobID, maxRetries)
+		notifyWebhook(job.WebhookURL, job.JobID, "FAILED", failReason)
+		d.Ack(false)
+	}
 }
 
 func upsertToSupabase(doc XMLDocument) error {
