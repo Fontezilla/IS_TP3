@@ -1,0 +1,51 @@
+# --- Binários e Compilação Go ---
+# Ignorar binários compilados (substitua 'nome-do-app' pelo nome do seu binário se necessário)
+/bin/
+/dist/
+/out/
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Artefatos de Teste
+*.test
+*.out
+profile.out
+coverage.txt
+
+# --- Dotenv (Variáveis de Ambiente) ---
+# CRÍTICO: Nunca commitar segredos reais
+.env
+.env.local
+.env.*
+*.env
+
+# Exceção: Manter o arquivo de exemplo/template
+!.env.example
+!.env.template
+!.env.sample
+
+# --- Docker ---
+# Ignorar overrides locais do docker-compose
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# --- IDEs e Editores ---
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (GoLand/IntelliJ)
+.idea/
+*.iml
+
+# --- Sistema Operacional ---
+.DS_Store
+Thumbs.db

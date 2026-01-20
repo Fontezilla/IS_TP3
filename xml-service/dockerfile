@@ -1,0 +1,23 @@
+FROM golang:1.25.6-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache git
+
+COPY . .
+
+ARG SERVICE_NAME
+
+RUN go build -o /bin/service ./$SERVICE_NAME
+
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates tzdata libxml2-utils
+
+WORKDIR /root/
+
+COPY --from=builder /bin/service .
+
+COPY .env .
+
+CMD ["./service"]

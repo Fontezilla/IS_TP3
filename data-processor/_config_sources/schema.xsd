@@ -1,68 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0">
 
-    <xs:element name="AtivoCripto">
+    <xs:element name="CryptoReport">
         <xs:complexType>
             <xs:sequence>
-
-                <xs:element name="Identificacao">
+                <xs:element name="AtivoCripto" maxOccurs="unbounded" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="Ticker" type="xs:string" minOccurs="1"/>
-                            <xs:element name="Nome" type="xs:string" minOccurs="1"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
 
-                <xs:element name="DadosMercado">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="PrecoAtual" type="xs:decimal" minOccurs="1"/>
-                            <xs:element name="Volume24h" type="xs:decimal"/>
-                            <xs:element name="CapitalizacaoMercado" type="xs:decimal"/>
-                            <xs:element name="Variacao">
+                            <xs:element name="Identificacao">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="Percentual" type="xs:decimal"/>
-                                        <xs:element name="Absoluta" type="xs:decimal"/>
+                                        <xs:element name="Ticker" type="xs:string" minOccurs="1"/>
+                                        <xs:element name="Nome" type="xs:string" minOccurs="1"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
+
+                            <xs:element name="DadosMercado">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="PrecoAtual" type="xs:decimal" minOccurs="1"/>
+                                        <xs:element name="Volume24h" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="CapitalizacaoMercado" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="Variacao" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:all>
+                                                    <xs:element name="Percentual" type="xs:decimal" minOccurs="0"/>
+                                                    <xs:element name="Absoluta" type="xs:decimal" minOccurs="0"/>
+                                                </xs:all>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="DadosBlockchain">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="SuprimentoCirculante" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="SuprimentoTotal" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="ATH" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="ATH_Data" type="xs:string" minOccurs="0"/>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="MetricasAvancadas">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="RankingGlobal" type="xs:integer" minOccurs="0"/>
+                                        <xs:element name="DominanciaMercado" type="xs:decimal" minOccurs="0"/>
+                                        <xs:element name="Tags" type="xs:string" minOccurs="0"/>
+                                        <xs:element name="SuprimentoMaximo" type="xs:decimal" minOccurs="0"/>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="Metadados">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="Timestamp" type="xs:string" minOccurs="1"/>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-
-                <xs:element name="DadosBlockchain">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="SuprimentoCirculante" type="xs:decimal" minOccurs="0"/>
-                            <xs:element name="SuprimentoTotal" type="xs:decimal" minOccurs="0"/>
-                            <xs:element name="ATH" type="xs:decimal" minOccurs="0"/>
-                            <xs:element name="ATH_Data" type="xs:string" minOccurs="0"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-
-                <xs:element name="MetricasAvancadas">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="RankingGlobal" type="xs:integer" minOccurs="0"/>
-                            <xs:element name="DominanciaMercado" type="xs:decimal" minOccurs="0"/>
-                            <xs:element name="Tags" type="xs:string" minOccurs="0"/>
-                            <xs:element name="SuprimentoMaximo" type="xs:decimal" minOccurs="0"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-
-                <xs:element name="Metadados">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Timestamp" type="xs:string" minOccurs="1"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-
             </xs:sequence>
+            <xs:attribute name="JobID" type="xs:string" use="required"/>
+            <xs:attribute name="GeneratedAt" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
 

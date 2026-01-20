@@ -165,3 +165,14 @@ async function startSender() {
 }
 
 startSender();
+
+// Pequenas Adaptações para correr no google cloud run:
+const http = require('http');
+const port = process.env.PORT || 8080;
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.end('Service is running!');
+});
+server.listen(port, () => {
+    console.log(`Keep-alive server listening on port ${port}`);
+})

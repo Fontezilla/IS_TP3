@@ -1,0 +1,10 @@
+go 1.25.6
+
+use (
+	./bridge-repository
+	./common
+	./persister
+	./receiver
+	./transformer
+	./validator
+)

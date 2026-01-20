@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package repository;
+
+option go_package = "xml-service/bridge-repository/proto";
+
+service XmlRepositoryService {
+  rpc GetEvolucaoPreco(EvolucaoPrecoRequest) returns (EvolucaoPrecoResponse);
+  rpc GetRankingDominancia(RankingDominanciaRequest) returns (RankingDominanciaResponse);
+  rpc GetPrecoMedio(PrecoMedioRequest) returns (PrecoMedioResponse);
+}
+
+message EvolucaoPrecoRequest {
+  string ticker = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message EvolucaoPrecoResponse {
+  repeated EvolucaoPrecoItem items = 1;
+}
+
+message EvolucaoPrecoItem {
+  string timestamp = 1;
+  double preco = 2;
+}
+
+message RankingDominanciaRequest {
+  int32 limit = 1;
+}
+
+message RankingDominanciaResponse {
+  repeated RankingDominanciaItem items = 1;
+}
+
+message RankingDominanciaItem {
+  string ticker = 1;
+  double dominancia = 2;
+}
+
+message PrecoMedioRequest {
+  string from = 1;
+  string to = 2;
+}
+
+message PrecoMedioResponse {
+  repeated PrecoMedioItem items = 1;
+}
+
+message PrecoMedioItem {
+  string ticker = 1;
+  double preco_medio = 2;
+}

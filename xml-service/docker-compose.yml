@@ -1,0 +1,73 @@
+services:
+  # 📥 Receiver
+  receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: receiver
+    container_name: xml_receiver
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    env_file: .env # <--- VAI LER O URL DA CLOUD AQUI
+    networks:
+      - xml-network
+
+  # 🤖 Transformer
+  transformer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: transformer
+    container_name: xml_transformer
+    restart: on-failure
+    env_file: .env
+    networks:
+      - xml-network
+
+  # 🧐 Validator
+  validator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: validator
+    container_name: xml_validator
+    restart: on-failure
+    env_file: .env
+    networks:
+      - xml-network
+
+  # 💾 Persister
+  persister:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: persister
+    container_name: xml_persister
+    restart: on-failure
+    env_file: .env
+    networks:
+      - xml-network
+
+  # 🔌 Bridge Repository (gRPC)
+  bridge-repository:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: bridge-repository
+    container_name: xml_bridge_repository
+    restart: on-failure
+    ports:
+      - "50051:50051"
+    env_file: .env
+    networks:
+      - xml-network
+
+networks:
+  xml-network:
+    driver: bridge
