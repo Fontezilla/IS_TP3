@@ -1,0 +1,25 @@
+type Query {
+    # Retorna a evolucao do preco de um ativo num periodo
+    evolucaoPreco(ticker: String!, from: String!, to: String!): [EvolucaoPrecoItem!]!
+
+    # Retorna o ranking de ativos por dominancia de mercado
+    rankingDominancia(limit: Int): [RankingDominanciaItem!]!
+
+    # Retorna o preco medio de todos os ativos num periodo
+    precoMedio(from: String!, to: String!): [PrecoMedioItem!]!
+}
+
+type EvolucaoPrecoItem {
+    timestamp: String!
+    preco: Float!
+}
+
+type RankingDominanciaItem {
+    ticker: String!
+    dominancia: Float!
+}
+
+type PrecoMedioItem {
+    ticker: String!
+    precoMedio: Float!
+}

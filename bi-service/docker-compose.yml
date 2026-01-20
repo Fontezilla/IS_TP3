@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  biservice:
+    build: .
+    container_name: biservice
+    ports:
+      - "8081:8081"
+    environment:
+      - GRPC_XML_REPOSITORY_ADDRESS=host.docker.internal
+      - GRPC_XML_REPOSITORY_PORT=50051
+      - SERVER_PORT=8081
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
