@@ -46,14 +46,14 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("Receiver a ouvir na porta %s...", port)
+		log.Printf("XML Service a ouvir na porta %s...", port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Erro servidor HTTP: %v", err)
 		}
 	}()
 
 	common.WaitForShutdown(func() {
-		log.Println("A encerrar servidor HTTP...")
+		log.Println("A encerrar XML Service...")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -65,25 +65,32 @@ func main() {
 		if rabbitConn != nil {
 			rabbitConn.Close()
 		}
-
-		log.Println("Receiver encerrado")
 	})
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+	expected := "Bearer " + common.GetEnv("SERVICE_TOKEN", "")
+
+	if !common.SecureCompare(token, expected) {
+		http.Error(w, "Nao autorizado", http.StatusUnauthorized)
+		return
+	}
+
 	if rabbitConn == nil || rabbitConn.IsClosed() {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{
 			"status":  "unhealthy",
-			"service": "receiver",
+			"service": "xml-service",
 			"error":   "RabbitMQ disconnected",
 		})
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "healthy",
-		"service": "receiver",
+		"service": "xml-service",
 	})
 }
 
@@ -101,59 +108,33 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseMultipartForm(50 << 20); err != nil {
-		log.Printf("Erro parse multipart: %v", err)
-		http.Error(w, "Erro ao processar ficheiros", http.StatusBadRequest)
+		http.Error(w, "Erro multipart", http.StatusBadRequest)
 		return
 	}
 
 	metadataStr := r.FormValue("metadata")
 	if metadataStr == "" {
-		http.Error(w, "Campo 'metadata' em falta", http.StatusBadRequest)
+		http.Error(w, "Metadata em falta", http.StatusBadRequest)
 		return
 	}
 
 	var meta MetadataRequest
 	if err := json.Unmarshal([]byte(metadataStr), &meta); err != nil {
-		log.Printf("Erro parse metadata: %v", err)
-		http.Error(w, "Formato de metadata invalido", http.StatusBadRequest)
+		http.Error(w, "Metadata invalida", http.StatusBadRequest)
 		return
 	}
-
-	if meta.JobID == "" {
-		http.Error(w, "Campo 'job_id' em falta", http.StatusBadRequest)
-		return
-	}
-
-	log.Printf("Recebido Job: %s", meta.JobID)
 
 	fileCSV, _, err := r.FormFile("source_file")
 	if err != nil {
-		http.Error(w, "Ficheiro 'source_file' em falta", http.StatusBadRequest)
+		http.Error(w, "CSV em falta", http.StatusBadRequest)
 		return
 	}
 	defer fileCSV.Close()
 
 	pathCSV := fmt.Sprintf("%s/data.csv", meta.JobID)
 	if err := common.UploadToSupabase(pathCSV, fileCSV, "text/csv"); err != nil {
-		log.Printf("Erro upload CSV para job %s: %v", meta.JobID, err)
-		http.Error(w, "Erro ao guardar CSV", http.StatusInternalServerError)
+		http.Error(w, "Erro upload CSV", http.StatusInternalServerError)
 		return
-	}
-
-	if fileMapper, _, err := r.FormFile("mapper_file"); err == nil {
-		defer fileMapper.Close()
-		pathMapper := fmt.Sprintf("%s/mapper.json", meta.JobID)
-		if err := common.UploadToSupabase(pathMapper, fileMapper, "application/json"); err != nil {
-			log.Printf("Aviso: erro upload mapper para job %s: %v", meta.JobID, err)
-		}
-	}
-
-	if fileSchema, _, err := r.FormFile("schema_file"); err == nil {
-		defer fileSchema.Close()
-		pathSchema := fmt.Sprintf("%s/schema.xsd", meta.JobID)
-		if err := common.UploadToSupabase(pathSchema, fileSchema, "application/xml"); err != nil {
-			log.Printf("Aviso: erro upload schema para job %s: %v", meta.JobID, err)
-		}
 	}
 
 	jobMsg := common.JobRequest{
@@ -172,12 +153,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		log.Printf("Erro ao enfileirar job %s: %v", meta.JobID, err)
-		http.Error(w, "Erro ao enfileirar", http.StatusInternalServerError)
+		http.Error(w, "Erro RabbitMQ", http.StatusInternalServerError)
 		return
 	}
-
-	log.Printf("Job %s enfileirado", meta.JobID)
 
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(map[string]string{

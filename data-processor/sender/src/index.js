@@ -16,151 +16,98 @@ let isConsuming = false;
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
-    res.end(`Status: ${isConsuming ? 'PROCESSING' : 'PAUSED (Service Offline)'}`);
+    res.end(`Status: ${isConsuming ? 'PROCESSING' : 'PAUSED'}`);
 });
 
 server.listen(port, () => {
-    console.log(`[Sender] HTTP server running on port ${port}`);
     initializeServices();
 });
 
 async function initializeServices() {
-    try {
-        supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY, {
-            db: { schema: 'data_processor' }
-        });
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY, {
+        db: { schema: 'data_processor' }
+    });
 
-        const connection = await amqp.connect(process.env.RABBITMQ_URL);
-        channel = await connection.createChannel();
-        await channel.assertQueue(QUEUE_NAME, { durable: true });
-        await channel.prefetch(1);
-        
-        console.log('[Sender] Conectado ao RabbitMQ. Iniciando monitorização...');
+    const connection = await amqp.connect(process.env.RABBITMQ_URL);
+    channel = await connection.createChannel();
+    await channel.assertQueue(QUEUE_NAME, { durable: true });
+    await channel.prefetch(1);
 
-        monitorServiceHealth();
-
-    } catch (err) {
-        console.error('[Sender] Erro fatal:', err.message);
-        process.exit(1);
-    }
+    monitorServiceHealth();
 }
 
 async function monitorServiceHealth() {
-    const checkLoop = async () => {
+    const loop = async () => {
         const isOnline = await checkXMLService();
 
         if (isOnline && !isConsuming) {
-            console.log('[Monitor] Serviço XML está ON. Iniciando consumidor...');
             await startConsumer();
         } else if (!isOnline && isConsuming) {
-            console.log('[Monitor] Serviço XML caiu. Pausando consumidor...');
             await stopConsumer();
-        } else if (!isOnline) {
-             console.log('[Monitor] Serviço XML continua OFF. Mantendo pausa.');
         }
 
-        setTimeout(checkLoop, CHECK_INTERVAL);
+        setTimeout(loop, CHECK_INTERVAL);
     };
 
-    checkLoop();
+    loop();
 }
 
 async function checkXMLService() {
     try {
-        await axios.get(process.env.XML_SERVICE_URL, {
+        await axios.get(`${process.env.XML_SERVICE_URL}/health`, {
             timeout: 5000,
-            headers: { 'Authorization': `Bearer ${process.env.XML_SERVICE_TOKEN}` }
+            headers: {
+                Authorization: `Bearer ${process.env.XML_SERVICE_TOKEN}`
+            }
         });
         return true;
-    } catch (err) {
+    } catch {
         return false;
     }
 }
 
-
 async function startConsumer() {
-    if (isConsuming) return;
-
-    try {
-        const { consumerTag: tag } = await channel.consume(QUEUE_NAME, processMessage);
-        consumerTag = tag;
-        isConsuming = true;
-        console.log(`[RabbitMQ] Consumidor INICIADO (Tag: ${consumerTag})`);
-    } catch (err) {
-        console.error('[RabbitMQ] Erro ao iniciar consumidor:', err.message);
-    }
+    const { consumerTag: tag } = await channel.consume(QUEUE_NAME, processMessage);
+    consumerTag = tag;
+    isConsuming = true;
 }
 
 async function stopConsumer() {
-    if (!isConsuming || !consumerTag) return;
-
-    try {
-        await channel.cancel(consumerTag);
-        isConsuming = false;
-        consumerTag = null;
-        console.log('[RabbitMQ] Consumidor PAUSADO. Mensagens mantidas na fila.');
-    } catch (err) {
-        console.error('[RabbitMQ] Erro ao pausar consumidor:', err.message);
-    }
+    if (!consumerTag) return;
+    await channel.cancel(consumerTag);
+    consumerTag = null;
+    isConsuming = false;
 }
 
-const processMessage = async (msg) => {
-    if (!msg) return;
-
-    const content = JSON.parse(msg.content.toString());
-    const { jobID, processed_path } = content;
-
-    console.log(`[Job ${jobID}] Recebido. Processando...`);
+async function processMessage(msg) {
+    const { jobID, processed_path } = JSON.parse(msg.content.toString());
 
     try {
-        const [dataRes, mapperRes, xsdRes] = await Promise.all([
-            supabase.storage.from(process.env.SUPABASE_PROCESSED_BUCKET).download(processed_path),
-            supabase.storage.from(process.env.SUPABASE_CONFIGS).download('mapper.json'),
-            supabase.storage.from(process.env.SUPABASE_CONFIGS).download('schema.xsd')
-        ]);
+        const dataRes = await supabase
+            .storage
+            .from(process.env.SUPABASE_PROCESSED_BUCKET)
+            .download(processed_path);
 
-        if (dataRes.error || mapperRes.error || xsdRes.error) {
-            throw new Error("Erro no Supabase (Ficheiros não encontrados)");
-        }
+        if (dataRes.error) throw dataRes.error;
 
         const form = new FormData();
-        form.append('source_file', Buffer.from(await dataRes.data.arrayBuffer()), 'dados.csv');
-        form.append('mapper_file', Buffer.from(await mapperRes.data.arrayBuffer()), 'mapper.json');
-        form.append('schema_file', Buffer.from(await xsdRes.data.arrayBuffer()), 'schema.xsd');
-        const metadata = { job_id: jobID, callback_url: `${process.env.CLEANER_URL}/cleanup/${jobID}` };
-        form.append('metadata', JSON.stringify(metadata));
-
-        await axios.post(process.env.XML_SERVICE_URL, form, {
-            headers: { ...form.getHeaders(), 'Authorization': `Bearer ${process.env.XML_SERVICE_TOKEN}` },
-            timeout: 30000
-        });
-        await supabase.from('sended_jobs').insert({
+        form.append('source_file', Buffer.from(await dataRes.data.arrayBuffer()), 'data.csv');
+        form.append('metadata', JSON.stringify({
             job_id: jobID,
-            processed_path: processed_path,
-            status: 'SENDED',
-            sent_at: new Date().toISOString()
+            callback_url: `${process.env.CLEANER_URL}/cleanup/${jobID}`
+        }));
+
+        await axios.post(`${process.env.XML_SERVICE_URL}/upload`, form, {
+            headers: {
+                ...form.getHeaders(),
+                Authorization: `Bearer ${process.env.XML_SERVICE_TOKEN}`
+            },
+            timeout: 30000
         });
 
         channel.ack(msg);
-        console.log(`[Job ${jobID}] Enviado com sucesso.`);
-
-    } catch (error) {
-        console.error(`[Job ${jobID}] Erro: ${error.message}`);
-        
-        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-            console.log(`[Job ${jobID}] Serviço caiu DURANTE o envio. Devolvendo à fila e pausando.`);
-            
-            channel.nack(msg, false, true);
-            
-            await stopConsumer(); 
-        } else {
-             await supabase.from('sended_jobs').insert({
-                job_id: jobID,
-                processed_path: processed_path,
-                status: 'FAILED',
-                error_log: error.message
-            });
-            channel.ack(msg);
-        }
+    } catch (err) {
+        channel.nack(msg, false, true);
+        await stopConsumer();
     }
-};
+}
