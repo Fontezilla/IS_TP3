@@ -534,60 +534,60 @@ export default function CryptoDashboard() {
           </div>
 
           {/* Preço Médio */}
-          <div className="glass-card p-6 rounded-xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                <span className="text-2xl">💰</span>
-                Preço Médio por Ativo
-                {avgStatus && (
-                  <Chip
-                    label={avgStatus}
-                    className={avgStatus === 'OK' ? 'status-ok' : 'status-error'}
-                    size="small"
-                  />
-                )}
-              </h3>
-            </div>
-
-            {avgError && (
-              <Alert severity="error" className="mb-4 bg-red-500/20 text-red-400 border border-red-500/30">
-                {avgError}
-              </Alert>
+      <div className="glass-card p-4 rounded-xl h-80"> {/* Reduzi o padding e defini uma altura fixa */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-2xl">💰</span>
+            Preço Médio por Ativo
+            {avgStatus && (
+              <Chip
+                label={avgStatus}
+                className={avgStatus === 'OK' ? 'status-ok' : 'status-error'}
+                size="small"
+              />
             )}
+          </h3>
+        </div>
 
-            <div className="overflow-x-auto">
-              {loadingAvg ? (
-                <div className="flex justify-center items-center h-40">
-                  <div className="spinner"></div>
-                </div>
-              ) : avgData && avgData.precoMedio.length > 0 ? (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="p-3 text-left text-gray-400">#</th>
-                      <th className="p-3 text-left text-gray-400">Ticker</th>
-                      <th className="p-3 text-left text-gray-400">Preço Médio</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {avgData.precoMedio.map((item, idx) => (
-                      <tr key={idx} className="border-b border-white/10 hover:bg-white/5">
-                        <td className="p-3">{idx + 1}</td>
-                        <td className="p-3 font-medium">{item.ticker}</td>
-                        <td className="p-3">{formatCurrency(item.precoMedio)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex justify-center items-center h-40 text-gray-400">
-                  Sem dados para exibir
-                </div>
-              )}
+        {avgError && (
+          <Alert severity="error" className="mb-4 bg-red-500/20 text-red-400 border border-red-500/30">
+            {avgError}
+          </Alert>
+        )}
+
+        <div className="overflow-y-auto h-[calc(100%-80px)]"> {/* Adicionei altura calculada e overflow-y-auto */}
+          {loadingAvg ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="spinner"></div>
             </div>
-          </div>
+          ) : avgData && avgData.precoMedio.length > 0 ? (
+            <table className="w-full">
+              <thead className="sticky top-0 bg-black z-10"> {/* fundo sólido preto */}
+                <tr className="border-b border-white/10">
+                  <th className="p-2 text-left text-gray-400">#</th>
+                  <th className="p-2 text-left text-gray-400">Ticker</th>
+                  <th className="p-2 text-left text-gray-400">Preço Médio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {avgData.precoMedio.map((item, idx) => (
+                  <tr key={idx} className="border-b border-white/10 hover:bg-white/5">
+                    <td className="p-2">{idx + 1}</td>
+                    <td className="p-2 font-medium">{item.ticker}</td>
+                    <td className="p-2">{formatCurrency(item.precoMedio)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="flex justify-center items-center h-full text-gray-400">
+              Sem dados para exibir
+            </div>
+          )}
         </div>
       </div>
-    </div>
+        </div>
+      </div>
+    </div>  
   );
 }
