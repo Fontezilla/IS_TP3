@@ -61,14 +61,14 @@ SELECT
 FROM xml_service.xml_documents d,
 XMLTABLE(
   '/CryptoReport/AtivoCripto'
-  PASSING d.xml_content::xml
+  PASSING CAST(d.xml_content AS xml)
   COLUMNS
     ticker TEXT PATH 'Identificacao/Ticker',
     preco NUMERIC PATH 'DadosMercado/PrecoAtual',
     ts TEXT PATH 'Metadados/Timestamp'
 ) xt
 WHERE xt.ticker = $1
-  AND xt.ts::timestamptz BETWEEN $2 AND $3
+  AND CAST(xt.ts AS timestamptz) BETWEEN CAST($2 AS timestamptz) AND CAST($3 AS timestamptz)
 ORDER BY xt.ts;
 `
 	rows, err := r.db.QueryContext(ctx, query, ticker, from, to)
@@ -97,7 +97,7 @@ SELECT
 FROM xml_service.xml_documents d,
 XMLTABLE(
   '/CryptoReport/AtivoCripto'
-  PASSING d.xml_content::xml
+  PASSING CAST(d.xml_content AS xml)
   COLUMNS
     ticker TEXT PATH 'Identificacao/Ticker',
     dominancia NUMERIC PATH 'MetricasAvancadas/DominanciaMercado'
@@ -132,13 +132,13 @@ SELECT
 FROM xml_service.xml_documents d,
 XMLTABLE(
   '/CryptoReport/AtivoCripto'
-  PASSING d.xml_content::xml
+  PASSING CAST(d.xml_content AS xml)
   COLUMNS
     ticker TEXT PATH 'Identificacao/Ticker',
     preco NUMERIC PATH 'DadosMercado/PrecoAtual',
     ts TEXT PATH 'Metadados/Timestamp'
 ) xt
-WHERE xt.ts::timestamptz BETWEEN $1 AND $2
+WHERE CAST(xt.ts AS timestamptz) BETWEEN CAST($1 AS timestamptz) AND CAST($2 AS timestamptz)
 GROUP BY xt.ticker
 ORDER BY preco_medio DESC;
 `

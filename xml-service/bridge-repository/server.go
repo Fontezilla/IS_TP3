@@ -18,10 +18,13 @@ type grpcServer struct {
 }
 
 func (s *grpcServer) GetEvolucaoPreco(ctx context.Context, req *proto.EvolucaoPrecoRequest) (*proto.EvolucaoPrecoResponse, error) {
+	log.Printf("GetEvolucaoPreco: ticker=%s, from=%s, to=%s", req.Ticker, req.From, req.To)
 	res, err := s.repo.GetEvolucaoPreco(ctx, req.Ticker, req.From, req.To)
 	if err != nil {
+		log.Printf("Erro GetEvolucaoPreco: %v", err)
 		return nil, err
 	}
+	log.Printf("GetEvolucaoPreco: encontrados %d registros", len(res))
 
 	var items []*proto.EvolucaoPrecoItem
 	for _, r := range res {
