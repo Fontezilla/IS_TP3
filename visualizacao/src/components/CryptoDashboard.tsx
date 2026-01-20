@@ -1,8 +1,8 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect, useMemo } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { gql } from '@apollo/client';
+
 import {
   TextField,
   Button,
@@ -21,9 +21,15 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { EvolucaoPrecoResponse, RankingDominanciaResponse, PrecoMedioResponse } from '@/types/graphql';
+import {
+  EvolucaoPrecoResponse,
+  RankingDominanciaResponse,
+  PrecoMedioResponse,
+} from '@/types/graphql';
 
-// Registrar componentes do Chart.js
+/* =======================
+   Chart.js
+======================= */
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -35,7 +41,9 @@ ChartJS.register(
   Legend
 );
 
-// Consulta GraphQL para evolução de preço
+/* =======================
+   GraphQL Queries
+======================= */
 const GET_EVOLUCAO_PRECO = gql`
   query EvolucaoPreco($ticker: String!, $from: String!, $to: String!) {
     evolucaoPreco(ticker: $ticker, from: $from, to: $to) {
@@ -45,7 +53,6 @@ const GET_EVOLUCAO_PRECO = gql`
   }
 `;
 
-// Consulta GraphQL para ranking de dominância
 const GET_RANKING_DOMINANCIA = gql`
   query RankingDominancia($limit: Int) {
     rankingDominancia(limit: $limit) {
@@ -55,7 +62,6 @@ const GET_RANKING_DOMINANCIA = gql`
   }
 `;
 
-// Consulta GraphQL para preço médio
 const GET_PRECO_MEDIO = gql`
   query PrecoMedio($from: String!, $to: String!) {
     precoMedio(from: $from, to: $to) {
@@ -67,29 +73,26 @@ const GET_PRECO_MEDIO = gql`
 
 export default function CryptoDashboard() {
   const client = useApolloClient();
+
+  /* =======================
+     Estados
+  ======================= */
   const [ticker, setTicker] = useState('BTC');
   const [from, setFrom] = useState(() => {
     const now = new Date();
-    const yearStart = new Date(now.getFullYear(), 0, 1);
-    return yearStart.toISOString().slice(0, 16);
+    return new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 16);
   });
-  const [to, setTo] = useState(() => {
-    const now = new Date();
-    return now.toISOString().slice(0, 16);
-  });
+  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 16));
   const [limit, setLimit] = useState(10);
 
-  // Estados para armazenar os dados
   const [priceData, setPriceData] = useState<EvolucaoPrecoResponse | null>(null);
   const [rankingData, setRankingData] = useState<RankingDominanciaResponse | null>(null);
   const [avgData, setAvgData] = useState<PrecoMedioResponse | null>(null);
 
-  // Estados de loading
   const [loadingPrice, setLoadingPrice] = useState(false);
   const [loadingRanking, setLoadingRanking] = useState(false);
   const [loadingAvg, setLoadingAvg] = useState(false);
 
-  // Estados de status
   const [priceStatus, setPriceStatus] = useState('');
   const [rankingStatus, setRankingStatus] = useState('');
   const [avgStatus, setAvgStatus] = useState('');
@@ -107,24 +110,20 @@ export default function CryptoDashboard() {
     records: 0,
   });
 
-  // Função para formatar número como moeda
-  const formatCurrency = (value: number) => {
-    if (value >= 1000000000) {
-      return '$' + (value / 1000000000).toFixed(2) + 'B';
-    } else if (value >= 1000000) {
-      return '$' + (value / 1000000).toFixed(2) + 'M';
-    } else if (value >= 1000) {
-      return '$' + (value / 1000).toFixed(2) + 'K';
-    }
-    return '$' + value.toFixed(2);
-  };
+  /* =======================
+     Helpers
+  ======================= */
+  const formatCurrency = (v: number) =>
+    v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
+    : v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M`
+    : v >= 1e3 ? `$${(v / 1e3).toFixed(2)}K`
+    : `$${v.toFixed(2)}`;
 
-  // Função para formatar percentagem
-  const formatPercent = (value: number) => {
-    return value.toFixed(2) + '%';
-  };
+  const formatPercent = (v: number) => `${v.toFixed(2)}%`;
 
-  // Função para carregar evolução de preço
+  /* =======================
+     Loaders
+  ======================= */
   const loadEvolucaoPreco = async () => {
     setLoadingPrice(true);
     setPriceStatus('A carregar...');
@@ -134,45 +133,33 @@ export default function CryptoDashboard() {
       const { data } = await client.query<EvolucaoPrecoResponse>({
         query: GET_EVOLUCAO_PRECO,
         variables: { ticker, from, to },
-        fetchPolicy: 'network-only', // Força buscar dados frescos
+        fetchPolicy: 'network-only',
       });
 
       const items = data.evolucaoPreco;
+      if (!items.length) throw new Error('Sem dados');
 
-      if (items.length === 0) {
-        throw new Error('Nenhum dado encontrado para o período selecionado');
-      }
-
-      // Atualizar estado com os dados
-      setPriceData(data);
-
-      // Calcular estatísticas
       const precos = items.map(i => i.preco);
-      const minPreco = Math.min(...precos);
-      const maxPreco = Math.max(...precos);
-      const avgPreco = precos.reduce((a, b) => a + b, 0) / precos.length;
-      const variation = ((precos[precos.length - 1] - precos[0]) / precos[0] * 100);
-
       setPriceStats({
-        lastPrice: precos[precos.length - 1],
-        minPrice: minPreco,
-        maxPrice: maxPreco,
-        avgPrice: avgPreco,
-        variation: variation,
+        lastPrice: precos.at(-1)!,
+        minPrice: Math.min(...precos),
+        maxPrice: Math.max(...precos),
+        avgPrice: precos.reduce((a, b) => a + b, 0) / precos.length,
+        variation: ((precos.at(-1)! - precos[0]) / precos[0]) * 100,
         records: items.length,
       });
 
+      setPriceData(data);
       setPriceStatus('OK');
-    } catch (error) {
+    } catch (e: any) {
       setPriceStatus('Erro');
-      setPriceError(error instanceof Error ? error.message : 'Erro desconhecido');
+      setPriceError(e.message);
       setPriceData(null);
     } finally {
       setLoadingPrice(false);
     }
   };
 
-  // Função para carregar ranking de dominância
   const loadRankingDominancia = async () => {
     setLoadingRanking(true);
     setRankingStatus('A carregar...');
@@ -185,23 +172,19 @@ export default function CryptoDashboard() {
         fetchPolicy: 'network-only',
       });
 
-      if (data.rankingDominancia.length === 0) {
-        throw new Error('Nenhum dado de dominância encontrado');
-      }
+      if (!data.rankingDominancia.length) throw new Error('Sem dados');
 
-      // Atualizar estado com os dados
       setRankingData(data);
       setRankingStatus('OK');
-    } catch (error) {
+    } catch (e: any) {
       setRankingStatus('Erro');
-      setRankingError(error instanceof Error ? error.message : 'Erro desconhecido');
+      setRankingError(e.message);
       setRankingData(null);
     } finally {
       setLoadingRanking(false);
     }
   };
 
-  // Função para carregar preço médio
   const loadPrecoMedio = async () => {
     setLoadingAvg(true);
     setAvgStatus('A carregar...');
@@ -214,88 +197,84 @@ export default function CryptoDashboard() {
         fetchPolicy: 'network-only',
       });
 
-      if (data.precoMedio.length === 0) {
-        throw new Error('Nenhum dado de preço médio encontrado');
-      }
+      if (!data.precoMedio.length) throw new Error('Sem dados');
 
-      // Atualizar estado com os dados
       setAvgData(data);
       setAvgStatus('OK');
-    } catch (error) {
+    } catch (e: any) {
       setAvgStatus('Erro');
-      setAvgError(error instanceof Error ? error.message : 'Erro desconhecido');
+      setAvgError(e.message);
       setAvgData(null);
     } finally {
       setLoadingAvg(false);
     }
   };
 
-  // Função para carregar todos os dados
-  const loadAllData = async () => {
-    await Promise.all([
+  const loadAllData = async () =>
+    Promise.all([
       loadEvolucaoPreco(),
       loadRankingDominancia(),
       loadPrecoMedio(),
     ]);
-  };
 
-  // Função para limpar dados
-  const clearData = () => {
-    setPriceData(null);
-    setRankingData(null);
-    setAvgData(null);
-    setPriceStatus('');
-    setRankingStatus('');
-    setAvgStatus('');
-    setPriceError('');
-    setRankingError('');
-    setAvgError('');
-    setPriceStats({
-      lastPrice: 0,
-      minPrice: 0,
-      maxPrice: 0,
-      avgPrice: 0,
-      variation: 0,
-      records: 0,
-    });
-  };
-
-  // Carregar dados ao iniciar
+  /* =======================
+     AUTO-REFRESH (10 min)
+  ======================= */
   useEffect(() => {
     loadAllData();
-  }, []); // Carrega apenas uma vez ao montar
 
-  // Dados para o gráfico de evolução de preço
-  const priceChartData = {
-    labels: priceData?.evolucaoPreco?.map(i => new Date(i.timestamp).toLocaleDateString('pt-PT')) || [],
-    datasets: [
-      {
-        label: `${ticker} Preço (USD)`,
-        data: priceData?.evolucaoPreco?.map(i => i.preco) || [],
-        borderColor: '#00d4ff',
-        backgroundColor: 'rgba(0, 212, 255, 0.1)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: (priceData?.evolucaoPreco?.length || 0) > 50 ? 0 : 3,
-      },
-    ],
-  };
+    const interval = setInterval(() => {
+      loadAllData();
+    }, 10 * 60 * 1000); // 10 minutos
 
-  // Dados para o gráfico de ranking de dominância
-  const rankingChartData = {
-    labels: rankingData?.rankingDominancia?.map(i => i.ticker) || [],
-    datasets: [
-      {
-        label: 'Dominância (%)',
-        data: rankingData?.rankingDominancia?.map(i => i.dominancia) || [],
-        backgroundColor: [
-          '#00d4ff', '#7b2cbf', '#00ff88', '#ff4757', '#ffa502',
-          '#2ed573', '#1e90ff', '#ff6b81', '#a55eea', '#26de81'
-        ],
-        borderRadius: 5,
-      },
-    ],
-  };
+    return () => clearInterval(interval);
+  }, []);
+
+  /* =======================
+     AUTO-UPDATE RANKING
+  ======================= */
+  useEffect(() => {
+    if (limit > 0) {
+      loadRankingDominancia();
+    }
+  }, [limit]);
+
+  /* =======================
+     Charts
+  ======================= */
+const priceChartData = useMemo(() => ({
+  labels: priceData?.evolucaoPreco.map(i =>
+    new Date(i.timestamp).toLocaleDateString('pt-PT')
+  ) || [],
+  datasets: [
+    {
+      label: `${ticker} (USD)`,
+      data: priceData?.evolucaoPreco.map(i => i.preco) || [],
+      borderColor: '#00d4ff',
+      backgroundColor: 'rgba(0,212,255,.15)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+    },
+  ],
+}), [priceData, ticker]);
+
+
+const rankingChartData = useMemo(() => ({
+  labels: rankingData?.rankingDominancia.map(i => i.ticker) || [],
+  datasets: [
+    {
+      data: rankingData?.rankingDominancia.map(i => i.dominancia) || [],
+      backgroundColor:
+        rankingData?.rankingDominancia.map(
+          (_, i) => `hsl(${i * 40}, 80%, 60%)`
+        ) || [],
+      borderRadius: 6,
+    },
+  ],
+}), [rankingData]);
+
+
 
   return (
     <div className="gradient-bg min-h-screen p-4 md:p-8">
@@ -376,14 +355,7 @@ export default function CryptoDashboard() {
               >
                 Carregar Dados
               </Button>
-              <Button
-                variant="outlined"
-                onClick={clearData}
-                className="border-white/20 text-white hover:bg-white/10 transition-all"
-                fullWidth
-              >
-                Limpar
-              </Button>
+           
             </div>
           </div>
         </div>
@@ -534,7 +506,8 @@ export default function CryptoDashboard() {
           </div>
 
           {/* Preço Médio */}
-      <div className="glass-card p-4 rounded-xl h-110"> {/* Reduzi o padding e defini uma altura fixa */}
+      <div className="glass-card p-4 rounded-xl h-[28rem]">
+{/* Reduzi o padding e defini uma altura fixa */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-2xl">💰</span>
