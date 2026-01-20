@@ -4,14 +4,11 @@ services:
   biservice:
     build: .
     container_name: biservice
-    ports:
-      - "8081:8081"
+    network_mode: host
     environment:
-      - GRPC_XML_REPOSITORY_ADDRESS=host.docker.internal
-      - GRPC_XML_REPOSITORY_PORT=50051
+      - GRPC_XML_REPOSITORY_ADDRESS=${GRPC_XML_REPOSITORY_ADDRESS:-localhost}
+      - GRPC_XML_REPOSITORY_PORT=${GRPC_XML_REPOSITORY_PORT:-50051}
       - SERVER_PORT=8081
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 10s
