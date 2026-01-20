@@ -101,8 +101,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := r.Header.Get("Authorization")
-	expectedToken := "Bearer " + common.GetEnv("SERVICE_TOKEN", "")
-	if !common.SecureCompare(token, expectedToken) {
+	expected := "Bearer " + common.GetEnv("SERVICE_TOKEN", "")
+	if !common.SecureCompare(token, expected) {
 		http.Error(w, "Nao autorizado", http.StatusUnauthorized)
 		return
 	}
@@ -112,6 +112,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	/* =========================
+	   METADATA
+	========================= */
 	metadataStr := r.FormValue("metadata")
 	if metadataStr == "" {
 		http.Error(w, "Metadata em falta", http.StatusBadRequest)
@@ -124,35 +127,89 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if meta.JobID == "" || meta.WebhookURL == "" {
+		http.Error(w, "Campos obrigatorios da metadata em falta", http.StatusBadRequest)
+		return
+	}
+
+	/* =========================
+	   FICHEIROS OBRIGATORIOS
+	========================= */
 	fileCSV, _, err := r.FormFile("source_file")
 	if err != nil {
-		http.Error(w, "CSV em falta", http.StatusBadRequest)
+		http.Error(w, "Ficheiro 'source_file' em falta", http.StatusBadRequest)
 		return
 	}
 	defer fileCSV.Close()
 
-	pathCSV := fmt.Sprintf("%s/data.csv", meta.JobID)
-	if err := common.UploadToSupabase(pathCSV, fileCSV, "text/csv"); err != nil {
+	fileMapper, _, err := r.FormFile("mapper_file")
+	if err != nil {
+		http.Error(w, "Ficheiro 'mapper_file' em falta", http.StatusBadRequest)
+		return
+	}
+	defer fileMapper.Close()
+
+	fileSchema, _, err := r.FormFile("schema_file")
+	if err != nil {
+		http.Error(w, "Ficheiro 'schema_file' em falta", http.StatusBadRequest)
+		return
+	}
+	defer fileSchema.Close()
+
+	/* =========================
+	   UPLOAD SUPABASE
+	========================= */
+	if err := common.UploadToSupabase(
+		fmt.Sprintf("%s/data.csv", meta.JobID),
+		fileCSV,
+		"text/csv",
+	); err != nil {
 		http.Error(w, "Erro upload CSV", http.StatusInternalServerError)
 		return
 	}
 
-	jobMsg := common.JobRequest{
+	if err := common.UploadToSupabase(
+		fmt.Sprintf("%s/mapper.json", meta.JobID),
+		fileMapper,
+		"application/json",
+	); err != nil {
+		http.Error(w, "Erro upload mapper", http.StatusInternalServerError)
+		return
+	}
+
+	if err := common.UploadToSupabase(
+		fmt.Sprintf("%s/schema.xsd", meta.JobID),
+		fileSchema,
+		"application/xml",
+	); err != nil {
+		http.Error(w, "Erro upload schema", http.StatusInternalServerError)
+		return
+	}
+
+	/* =========================
+	   RABBITMQ
+	========================= */
+	job := common.JobRequest{
 		JobID:      meta.JobID,
 		WebhookURL: meta.WebhookURL,
 	}
-	body, _ := json.Marshal(jobMsg)
+	body, _ := json.Marshal(job)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = rabbitCh.PublishWithContext(ctx, "", queueName, false, false, amqp.Publishing{
-		ContentType:  "application/json",
-		DeliveryMode: amqp.Persistent,
-		Body:         body,
-	})
-
-	if err != nil {
+	if err := rabbitCh.PublishWithContext(
+		ctx,
+		"",
+		queueName,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType:  "application/json",
+			DeliveryMode: amqp.Persistent,
+			Body:         body,
+		},
+	); err != nil {
 		http.Error(w, "Erro RabbitMQ", http.StatusInternalServerError)
 		return
 	}
