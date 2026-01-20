@@ -1,0 +1,14 @@
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/model/Summary.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/service/BIService.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/java/com/tp3/xmlservice/QueryRequest.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/java/com/tp3/xmlservice/XmlServiceProto.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/model/Metadata.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/controller/XmlDocumentController.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/grpc-java/com/tp3/xmlservice/XMLServiceGrpc.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/BIServiceApplication.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/model/XmlDocument.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/config/CorsConfig.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/java/com/tp3/xmlservice/QueryResponse.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/java/com/tp3/xmlservice/QueryRequestOrBuilder.java
+/home/null/Documents/GitRep/IS_TP3/BIService/src/main/java/com/tp3/biservice/grpc/XMLServiceClient.java
+/home/null/Documents/GitRep/IS_TP3/BIService/target/generated-sources/protobuf/java/com/tp3/xmlservice/QueryResponseOrBuilder.java

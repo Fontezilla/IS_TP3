@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package xmlservice;
+
+option java_multiple_files = true;
+option java_package = "com.tp3.xmlservice";
+option java_outer_classname = "XmlServiceProto";
+
+service XMLService {
+  rpc QueryXML (QueryRequest) returns (QueryResponse) {}
+}
+
+message QueryRequest {
+  string filter = 1;
+}
+
+message QueryResponse {
+  bytes data = 1;
+}

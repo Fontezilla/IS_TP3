@@ -1,0 +1,20 @@
+type XmlDocument {
+  id: ID!
+  content: String!
+  metadata: Metadata!
+}
+
+type Metadata {
+  createdAt: String!
+  size: Int!
+}
+
+type Query {
+  xmlData(filter: String!): [XmlDocument!]!
+  summary(filter: String): Summary!
+}
+
+type Summary {
+  total: Int!
+  averageSize: Float!
+}
