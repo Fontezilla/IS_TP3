@@ -534,7 +534,7 @@ export default function CryptoDashboard() {
           </div>
 
           {/* Preço Médio */}
-      <div className="glass-card p-4 rounded-xl h-80"> {/* Reduzi o padding e defini uma altura fixa */}
+      <div className="glass-card p-4 rounded-xl h-110"> {/* Reduzi o padding e defini uma altura fixa */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-2xl">💰</span>
@@ -570,14 +570,24 @@ export default function CryptoDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {avgData.precoMedio.map((item, idx) => (
-                  <tr key={idx} className="border-b border-white/10 hover:bg-white/5">
-                    <td className="p-2">{idx + 1}</td>
-                    <td className="p-2 font-medium">{item.ticker}</td>
-                    <td className="p-2">{formatCurrency(item.precoMedio)}</td>
-                  </tr>
-                ))}
-              </tbody>
+                  {avgData.precoMedio.map((item, idx) => (
+                    <tr
+                      key={idx}
+                      className="
+                        border-b border-white/10
+                        odd:bg-white/5
+                        even:bg-white/10
+                        hover:bg-white/20
+                        transition-colors
+                      "
+                    >
+                      <td className="p-2">{idx + 1}</td>
+                      <td className="p-2 font-medium">{item.ticker}</td>
+                      <td className="p-2">{formatCurrency(item.precoMedio)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+
             </table>
           ) : (
             <div className="flex justify-center items-center h-full text-gray-400">
